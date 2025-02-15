@@ -38,16 +38,6 @@ if confidence_level < 0.25:
     print("Confidence is too low. Please provide a more descriptive message.")
     exit()
 
-
-# if classification == "Angry":
-#   chat_id = "ef9183fe-75a5-4686-b7ff-14fced618013-ft"
-# elif classification == "Quiet":
-#   chat_id = "ef9183fe-75a5-4686-b7ff-14fced618013-ft"
-# elif classification == "Judgemental":
-#   chat_id = "ef9183fe-75a5-4686-b7ff-14fced618013-ft"
-# elif classification == "happy":
-#   chat_id = "5340c40f-9e3b-4d16-8d4c-9a1d4495e905-ft"
-
 # Map labels to chat models
 persona_models = {
     "Angry Adam": "ef9183fe-75a5-4686-b7ff-14fced618013-ft",
@@ -62,20 +52,20 @@ if not chat_id:
     print(f"No model found for classification: {classification}")
     exit()
 
-message_to_chat = "YOU ARE A PRETEEN/TEENAGER STAY WITH THAT ROLE AND with your pretrained personality:" + classification + ". You are going to help a parent practice talking to there child based on this situation:" + situation + " REMEBER YOU ARE THE CHILD SO STAY IN CHARACTER. Let the parent prompt the conversation and be natural."
+# message_to_chat = "YOU ARE A PRETEEN/TEENAGER STAY WITH THAT ROLE AND with your pretrained personality:" + classification + ". You are going to help a parent practice talking to there child based on this situation:" + situation + " REMEBER YOU ARE THE CHILD SO STAY IN CHARACTER. Let the parent prompt the conversation and be natural."
 
-# stream = co.chat_stream(
-#     model = chat_id,
-#     message = message_to_chat, # responds to users initial input
-#     temperature = 0.3,
-#     chat_history = [],
-#     prompt_truncation = 'AUTO'
-# ) 
+message_to_chat = (
+    f"You are a teenager with the personality: {classification}. "
+    "Your role is to help a parent practice conversations with their child based on the situation they have described. "
+    f"Stay in character as '{classification}' throughout the conversation. "
+    "React naturally based on your assigned persona's emotions, thoughts, and communication style. "
+    "Your goal is to simulate a realistic interaction to help the parent better understand how to communicate with their child. "
+    "Let the parent lead the conversation, and only respond as the teenager. "
+    "Make sure you are open to change. "
+    "Here is the context of the situation provided by the parent: " + situation
+)
 
-# # Stream response
-# for event in stream:
-#     if event.event_type == "text-generation":
-#       print(event.text, end = '')
+
 
 print("\nChatbot initialized. Type your message below. Type 'exit' to quit.\n")
 chat_history = [{"role": "system", "message": message_to_chat}]
