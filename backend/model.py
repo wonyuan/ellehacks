@@ -12,8 +12,8 @@ api_key = os.getenv('API_KEY')
 if api_key is None:
     raise ValueError("API key not found. Please ensure the .env file contains the correct 'API_KEY'.")
 
-parser = argparse.ArgumentParser(description="Classifer")
-parser.add_argument("paragraph", type=str, help="Input paragraph")
+parser = argparse.ArgumentParser(description = "Classifer")
+parser.add_argument("paragraph", type = str, help = "Input paragraph")
 args = parser.parse_args()
 print(args.paragraph)
 
@@ -29,8 +29,17 @@ print('The confidence levels of the labels are: {}'.format(response.classificati
 
 # classification = "Angry"
 # After all chat models are available:
-classification = max(response.classifications, key=lambda x: x.confidence).prediction
+highest_confidence = max(response.classifications, key=lambda x: x.confidence)
+classification = highest_confidence.prediction
+confidence_level = highest_confidence.confidence
 print(f"Classified as: {classification}")
+print(f"Confidence level: {confidence_level}")
+
+# If confidence level is too low (below 25%):
+if confidence_level < 0.25:
+    print("Confidence is too low. Please provide a more descriptive message.")
+    exit()
+
 
 # if classification == "Angry":
 #     chat_id = "ef9183fe-75a5-4686-b7ff-14fced618013-ft"
