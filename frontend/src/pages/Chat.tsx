@@ -29,11 +29,13 @@ const Chat = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const location = useLocation();
-  const { persona, paragraph } = location.state || {}; 
-  console.log('YAA', persona, paragraph);
+  const { persona, paragraph, description } = location.state || {}; 
+  console.log('YAA', persona, paragraph, description);
 
   const name = 'quiet quentin';
   const profile = profiles[name];
+  // const { description, profile } = location.state || {}; 
+
 
 
   useEffect(() => {
