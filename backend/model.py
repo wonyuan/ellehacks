@@ -23,13 +23,12 @@ co = cohere.Client(api_key)
 
 # Step 1: Classify the input (match with chat model)
 response = co.classify(
-  model='5ae71449-3ae0-488f-a703-eb0275839e8f-ft',
-  inputs=[situation])
+    model='5ae71449-3ae0-488f-a703-eb0275839e8f-ft',
+    inputs=[situation])
 print('The confidence levels of the labels are: {}'.format(response.classifications))
 
-# classification = "Angry"
-# After all chat models are available:
-highest_confidence = max(response.classifications, key=lambda x: x.confidence)
+# Find top chat model based on classification results
+highest_confidence = max(response.classifications, key = lambda x: x.confidence)
 classification = highest_confidence.prediction
 confidence_level = highest_confidence.confidence
 print(f"Classified as: {classification}")
@@ -42,13 +41,13 @@ if confidence_level < 0.25:
 
 
 # if classification == "Angry":
-#     chat_id = "ef9183fe-75a5-4686-b7ff-14fced618013-ft"
+#   chat_id = "ef9183fe-75a5-4686-b7ff-14fced618013-ft"
 # elif classification == "Quiet":
-#     chat_id = "ef9183fe-75a5-4686-b7ff-14fced618013-ft"
+#   chat_id = "ef9183fe-75a5-4686-b7ff-14fced618013-ft"
 # elif classification == "Judgemental":
-#     chat_id = "ef9183fe-75a5-4686-b7ff-14fced618013-ft"
+#   chat_id = "ef9183fe-75a5-4686-b7ff-14fced618013-ft"
 # elif classification == "happy":
-#     chat_id = "5340c40f-9e3b-4d16-8d4c-9a1d4495e905-ft"
+#   chat_id = "5340c40f-9e3b-4d16-8d4c-9a1d4495e905-ft"
 
 # Map labels to chat models
 persona_models = {
@@ -65,14 +64,14 @@ if not chat_id:
     exit()
 
 stream = co.chat_stream( 
-  model=chat_id,
-  message=situation, # responds to users initial input
-  temperature=0.3,
-  chat_history=[],
-  prompt_truncation='AUTO'
+    model = chat_id,
+    message = situation, # responds to users initial input
+    temperature = 0.3,
+    chat_history = [],
+    prompt_truncation = 'AUTO'
 ) 
 
 # Stream response
 for event in stream:
-  if event.event_type == "text-generation":
-    print(event.text, end='')
+    if event.event_type == "text-generation":
+      print(event.text, end = '')
