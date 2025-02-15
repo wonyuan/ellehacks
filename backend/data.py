@@ -88,8 +88,8 @@ def chat():
 def evaluate():
     global chat_history
     # Get chat history from stored variable 
-    data = request.json
-    chat_history = data.get("chat_history")
+    # data = request.json
+    # chat_history = data.get("chat_history")
 
     # Evaluate the conversation
     score = evaluate_conversation(chat_history)
