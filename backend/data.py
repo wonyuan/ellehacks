@@ -20,6 +20,66 @@ persona_models = {
     "Happy Hannah": "5340c40f-9e3b-4d16-8d4c-9a1d4495e905-ft"
 }
 
+    
+@app.route('/classify', methods=['POST'])
+def classify():
+    try:
+        data = request.get_json()
+        paragraph = data.get("paragraph", "").strip()
+
+        if not paragraph:
+            return jsonify({"error": "No paragraph provided"}), 400
+
+        response = co.classify(
+            model='5ae71449-3ae0-488f-a703-eb0275839e8f-ft',
+            inputs=[paragraph]
+        )
+
+        highest_confidence = max(response.classifications, key=lambda x: x.confidence)
+        classification = highest_confidence.prediction
+        confidence_level = highest_confidence.confidence
+
+        if confidence_level < 0.25:
+            return jsonify({"error": "Confidence too low. Please provide more details."}), 400
+
+        chat_id = persona_models.get(classification)
+        if not chat_id:
+            return jsonify({"error": f"No model found for classification: {classification}"}), 404
+
+        return jsonify({
+            "classification": classification,
+            "confidence": confidence_level,
+            "persona_model_id": chat_id
+        })
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route('/refined', methods=['POST'])
+def refine():
+    data = request.json
+    situation = data.get("situation")
+
+    stream = co.chat_stream( 
+        model='c4ai-aya-expanse-32b',
+        message='BASED ON THIS INFORMATION:'+ situation + " CREATE A PROFILE SUMMARY LIKE THIS: Hi I am a child with ____ and I am ___. Make the description 2 to 2.5 sentences and try to create something based on the given situation (not overly creative but target general child pyscology - as accurate as possible)",
+        temperature=0.3,
+        chat_history=[],
+        prompt_truncation='AUTO'
+    ) 
+    updated_situation = ""
+
+    for event in stream:
+        if event.event_type == "text-generation":
+        # Concatenate the generated text to the updated_situation variable
+            updated_situation += event.text
+            print(event.text, end='')
+    
+    return{
+        "profile_intro": updated_situation
+    }
+
 @app.route('/chat', methods=['POST'])
 def chat():
     global chat_history
@@ -87,83 +147,49 @@ def evaluate():
 @app.route('/evaluation', methods=['POST'])
 def evaluation():
     try:
+        # Classify the conversation for communication quality
+        data = request.json
+        situation = data.get("situation")
+        chat = data.get("chat")
+
         response = co.classify(
             model = 'bfc37152-1c6c-4486-84bb-843dd7d9df11-ft',  # MODEL ID HERE
-            inputs = [chat_history]
+            inputs = [chat]
         )
-
-        highest_confidence = max(response.classifications, key = lambda x: x.confidence)
+         # Find the classification with the highest confidence
+        highest_confidence = max(response.classifications, key=lambda x: x.confidence)
+        label = highest_confidence.prediction
+        # confidence_level = highest_confidence.confidence
+       
         label_scores = {"one": "10%", "two": "20%", "three": "30%", "four": "40%", "five": "50%", "six": "60%", "seven": "70%", "eight": "80%", "nine": "90%", "ten": "100%",
         }
 
-        label = highest_confidence.prediction  # labels from "one", "two", ..., "ten"
-        confidence_level = highest_confidence.confidence
+        rating = label_scores.get(label)
 
-        if confidence_level < 0.25:
-            return {"error": "Confidence too low. Please provide more details."}, 400
-
-        return {
-            "conversation_rating": label_scores.get(label),
-            "confidence": confidence_level
-        }
-
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-    
-@app.route('/classify', methods=['POST'])
-def classify():
-    try:
-        data = request.get_json()
-        paragraph = data.get("paragraph", "").strip()
-
-        if not paragraph:
-            return jsonify({"error": "No paragraph provided"}), 400
-
-        response = co.classify(
-            model='5ae71449-3ae0-488f-a703-eb0275839e8f-ft',
-            inputs=[paragraph]
-        )
-
-        highest_confidence = max(response.classifications, key=lambda x: x.confidence)
-        classification = highest_confidence.prediction
-        confidence_level = highest_confidence.confidence
-
-        if confidence_level < 0.25:
-            return jsonify({"error": "Confidence too low. Please provide more details."}), 400
-
-        chat_id = persona_models.get(classification)
-        if not chat_id:
-            return jsonify({"error": f"No model found for classification: {classification}"}), 404
-
-        return jsonify({
-            "classification": classification,
-            "confidence": confidence_level,
-            "persona_model_id": chat_id
-        })
-
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-@app.route('/refined', methods=['GET'])
-def refine():
-    try:
-        situation = request.args.get("situation")
-        if not situation:
-            return jsonify({"error": "No situation provided"}), 400
-
-        stream = co.chat_stream(
+        stream = co.chat_stream( 
             model='c4ai-aya-expanse-32b',
-            message=f'BASED ON THIS INFORMATION: {situation} ...',
+            message='BASED ON THIS INFORMATION:'+ situation + "and this overall accuracy percent:" + rating + "give tips on who a parent can improve this conversation:" + chat+ "GIVE THE FOLLOWING: WHAT THEY DID WELL, HOW THEY CAN IMPROVE, HOW TO CONNECT WITH THIS SPECIFIC CHILD.",
             temperature=0.3,
             chat_history=[],
             prompt_truncation='AUTO'
         ) 
-        updated_situation = "".join(event.text for event in stream if event.event_type == "text-generation")
+        output = ""
 
-        if not updated_situation:
-            return jsonify({"error": "No response generated"}), 500
+        for event in stream:
+            if event.event_type == "text-generation":
+        # Concatenate the generated text to the updated_situation variable
+                output+= event.text
+                print(event.text, end='')
+    
 
-        return jsonify({"profile_intro": updated_situation})
+        # # If confidence is low, prompt for more information
+        # if confidence_level < 0.25:
+        #     return {"error": "Confidence too low. Please provide more details."}, 400
+
+        return {
+            "conversation_rating": rating,
+            "Tips": output
+        }
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500

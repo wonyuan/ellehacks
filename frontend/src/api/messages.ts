@@ -21,4 +21,3 @@ export const fetchChat = async ({ params }: chatProps) => {
       console.error('Error fetching chatbot response:', error);
     }
   };
-  

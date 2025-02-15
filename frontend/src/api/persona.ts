@@ -13,3 +13,13 @@ export const fetchPersona = async ({ params }: classifyTextProps) => {
   console.log('data', data);   
   return data;
 };
+
+// // child personality summary
+// export const fetchSummary = async ({ params }: classifyTextProps) => {
+//   const data = await post({
+//     url: `${baseURL}/summary`,
+//     body: params,
+//   });
+//   console.log('data', data);   
+//   return data;
+// };

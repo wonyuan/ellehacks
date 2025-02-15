@@ -30,7 +30,6 @@ const handleSubmit = async () => {
       setProblem('');
     }
   };
-  
 
   // post paragraph to backend get it again
 
