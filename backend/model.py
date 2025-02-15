@@ -1,9 +1,49 @@
+# from flask import Flask, jsonify, request
+# from flask_cors import CORS  # Allow frontend to access backend
+from model import evaluate_conversation
+import cohere
 import os
 from dotenv import load_dotenv
-import argparse
-import cohere 
-from flask import Flask, request, jsonify
-from flask_cors import CORS 
+
+# app = Flask(__name__)
+# # Access the API key
+# CORS(app)  # Enable CORS for all routes
+
+load_dotenv()
+api_key = os.getenv('API_KEY')
+co = cohere.Client(api_key)
+
+def evaluate_conversation(chat_history):
+    try:
+        # Classify the conversation for communication quality
+        response = co.classify(
+            model = 'your-finetuned-model-id',  # MODEL ID HERE
+            inputs = [chat_history]
+        )
+
+        # Find the classification with the highest confidence
+        highest_confidence = max(response.classifications, key = lambda x: x.confidence)
+        label_scores = {"one": "10%", "two": "20%", "three": "30%", "four": "40%", "five": "50%", "six": "60%", "seven": "70%", "eight": "80%", "nine": "90%", "ten": "100%",
+        }
+
+        label = highest_confidence.prediction  # labels from "one", "two", ..., "ten"
+        confidence_level = highest_confidence.confidence
+
+        # If confidence is low, prompt for more information
+        if confidence_level < 0.25:
+            return {"error": "Confidence too low. Please provide more details."}, 400
+
+        return {
+            "conversation_rating": label_scores.get(label),
+            "confidence": confidence_level
+        }
+
+    except Exception as e:
+        return {"error": str(e)}, 500
+    
+
+# OLD CODE: 
+
 
 # # Load the .env file
 # load_dotenv()
@@ -94,31 +134,3 @@ from flask_cors import CORS
 #         chat_history.append({"role": "Chatbot", "message": bot_response})
 #         print(f"Chatbot: {bot_response}\n")
 
-
-def evaluate_conversation(chat_history):
-    try:
-        # Classify the conversation for communication quality
-        response = co.classify(
-            model = 'your-finetuned-model-id',  # MODEL ID HERE
-            inputs = [chat_history]
-        )
-
-        # Find the classification with the highest confidence
-        highest_confidence = max(response.classifications, key = lambda x: x.confidence)
-        label_scores = {"one": "10%", "two": "20%", "three": "30%", "four": "40%", "five": "50%", "six": "60%", "seven": "70%", "eight": "80%", "nine": "90%", "ten": "100%",
-        }
-
-        label = highest_confidence.prediction  # labels from "one", "two", ..., "ten"
-        confidence_level = highest_confidence.confidence
-
-        # If confidence is low, prompt for more information
-        if confidence_level < 0.25:
-            return {"error": "Confidence too low. Please provide more details."}, 400
-
-        return {
-            "conversation_rating": label_scores.get(label),
-            "confidence": confidence_level
-        }
-
-    except Exception as e:
-        return {"error": str(e)}, 500
