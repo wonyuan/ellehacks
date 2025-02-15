@@ -20,3 +20,27 @@ export const personas = {
         desc: "he keeps to himself so often that i'm starting to get worried. how do i help him open up?",
     },
   };
+
+
+  export const profiles = {
+    "angry adam": {
+        headshot: "/bob.png",
+        name: "angry adam",
+        scenario: "temper tantrums, broken plates, and lots and lots of yelling. did i do something wrong?",
+    },
+    "quiet quentin": {
+        headshot: "/bob.png",
+        name: "angry adam",
+        scenario: "temper tantrums, broken plates, and lots and lots of yelling. did i do something wrong?",
+    },
+    "happy hannah": {
+        headshot: "/bob.png",
+        name: "angry adam",
+        scenario: "temper tantrums, broken plates, and lots and lots of yelling. did i do something wrong?",
+    },
+    "judgemental judy": {
+        headshot: "/bob.png",
+        name: "angry adam",
+        scenario: "temper tantrums, broken plates, and lots and lots of yelling. did i do something wrong?",
+    },
+  }

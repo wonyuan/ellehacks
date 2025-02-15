@@ -11,8 +11,7 @@ app = Flask(__name__)
 # Access the API key
 api_key = os.getenv('API_KEY')
 
-if api_key is None:
-    raise ValueError("API key not found. Please ensure the .env file contains the correct 'API_KEY'.")
+if api_key is None:    raise ValueError("API key not found. Please ensure the .env file contains the correct 'API_KEY'.")
 
 parser = argparse.ArgumentParser(description = "Classifer")
 parser.add_argument("paragraph", type = str, help = "Input paragraph")
@@ -44,8 +43,8 @@ if confidence_level < 0.25:
 # Map labels to chat models
 persona_models = {
     "Angry Adam": "ef9183fe-75a5-4686-b7ff-14fced618013-ft",
-    "Quiet Quintin": "ebbfe6bd-0c47-42e6-8afe-949a8bfe9e34-ft",  
-    "Judgmental Judy": "d5452d1d-d8bd-42d6-a28c-321f79f96572-ft", 
+    "Quiet Quintin": "ebbfe6bd-0c47-42e6-8afe-949a8bfe9e34-ft",
+    "Judgmental Judy": "d5452d1d-d8bd-42d6-a28c-321f79f96572-ft",
     "Happy Hannah": "5340c40f-9e3b-4d16-8d4c-9a1d4495e905-ft"
 }
 
@@ -55,7 +54,20 @@ if not chat_id:
     print(f"No model found for classification: {classification}")
     exit()
 
-message_to_chat = "YOU ARE A PRETEEN/TEENAGER STAY WITH THAT ROLE AND with your pretrained personality:" + classification + ". You are going to help a parent practice talking to there child based on this situation:" + situation +" REMEBER YOU ARE THE CHILD SO STAY IN CHARACTER. Let the parent prompt the conversation and be natural."
+# message_to_chat = "YOU ARE A PRETEEN/TEENAGER STAY WITH THAT ROLE AND with your pretrained personality:" + classification + ". You are going to help a parent practice talking to there child based on this situation:" + situation + " REMEBER YOU ARE THE CHILD SO STAY IN CHARACTER. Let the parent prompt the conversation and be natural."
+
+message_to_chat = (
+    f"You are a teenager with the personality: {classification}. "
+    "Your role is to help a parent practice conversations with their child based on the situation they have described. "
+    f"Stay in character as '{classification}' throughout the conversation. "
+    "React naturally based on your assigned persona's emotions, thoughts, and communication style. "
+    "Your goal is to simulate a realistic interaction to help the parent better understand how to communicate with their child. "
+    "Let the parent lead the conversation, and only respond as the teenager. "
+    "Make sure you are open to change. "
+    "Here is the context of the situation provided by the parent: " + situation
+)
+
+
 
 print("\nChatbot initialized. Type your message below. Type 'exit' to quit.\n")
 chat_history = [{"role": "system", "message": message_to_chat}]
