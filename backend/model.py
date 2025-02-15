@@ -9,8 +9,7 @@ load_dotenv()
 # Access the API key
 api_key = os.getenv('API_KEY')
 
-if api_key is None:
-    raise ValueError("API key not found. Please ensure the .env file contains the correct 'API_KEY'.")
+if api_key is None:    raise ValueError("API key not found. Please ensure the .env file contains the correct 'API_KEY'.")
 
 parser = argparse.ArgumentParser(description = "Classifer")
 parser.add_argument("paragraph", type = str, help = "Input paragraph")
