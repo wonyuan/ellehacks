@@ -6,14 +6,12 @@ import { IconArrowLeft, IconArrowRight } from '@tabler/icons-react';
 import { personas } from "@constants/personas.ts"
 import { useNavigate } from "react-router-dom";
 import { fetchPersona } from "@api/persona";
-import { fetchSummary } from "@api/persona";
 import useLoading from "@context/loadingContext";
 
 
 const Onboarding = () => {
   const m = useMantineTheme();
   const [problem, setProblem] = useState('');
-  const [summary, setSummary] = useState('');
   const navigate = useNavigate();
   const { setLoading } = useLoading();
 
@@ -22,24 +20,16 @@ const Onboarding = () => {
     requestByDefault: false,
   });
 
-//   const { makeRequest } = useRequest({
-//     request: fetchSummary,
-//     requestByDefault: false,
-//   });
-
 const handleSubmit = async () => {
     setLoading(true);
     const response = await makeRequest({ paragraph: problem });
     setLoading(false);
-    // const summary = await makeRequest({ description: summary });
     
     if (response) {
-      navigate("/chat", { state: { persona: response, paragraph: problem, description:summary } });
+      navigate("/chat", { state: { persona: response, paragraph: problem } });
       setProblem('');
-      setSummary('');
     }
   };
-  
 
   // post paragraph to backend get it again
 

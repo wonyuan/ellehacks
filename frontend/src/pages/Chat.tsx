@@ -35,15 +35,6 @@ const Chat = () => {
   const classification = persona?.classification as keyof typeof profiles;
 
   const profile = profiles[classification];
-  
-  // const location = useLocation();
-  // const { persona, paragraph, description } = location.state || {}; 
-  // console.log('YAA', persona, paragraph, description);
-  // const classification = persona?.classification as keyof typeof profiles;
-
-  // const profile = profiles[classification];
-  // // const { description, profile } = location.state || {}; 
-
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
