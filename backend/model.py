@@ -52,8 +52,8 @@ if confidence_level < 0.25:
 # Map labels to chat models
 persona_models = {
     "Angry": "ef9183fe-75a5-4686-b7ff-14fced618013-ft",
-    "Quiet": "ef9183fe-75a5-4686-b7ff-14fced618013-ft",  # Placeholder
-    "Judgemental": "ef9183fe-75a5-4686-b7ff-14fced618013-ft",  # Placeholder
+    "Quiet": "ebbfe6bd-0c47-42e6-8afe-949a8bfe9e34-ft",  
+    "Judgemental": "d5452d1d-d8bd-42d6-a28c-321f79f96572-ft", 
     "Happy": "5340c40f-9e3b-4d16-8d4c-9a1d4495e905-ft"
 }
 
