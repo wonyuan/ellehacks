@@ -22,7 +22,6 @@ persona_models = {
     "Happy Hannah": "5340c40f-9e3b-4d16-8d4c-9a1d4495e905-ft"
 }
 
-
 @app.route('/chat', methods=['POST'])
 def chat():
     global chat_history
