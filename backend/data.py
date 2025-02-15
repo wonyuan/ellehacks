@@ -1,6 +1,5 @@
 from flask import Flask, jsonify, request
 from flask_cors import CORS  # Allow frontend to access backend
-# from model import evaluate_conversation
 import cohere
 import os
 from dotenv import load_dotenv
@@ -22,7 +21,6 @@ persona_models = {
     "Judgmental Judy": "d5452d1d-d8bd-42d6-a28c-321f79f96572-ft",
     "Happy Hannah": "5340c40f-9e3b-4d16-8d4c-9a1d4495e905-ft"
 }
-
 
 @app.route('/chat', methods=['POST'])
 def chat():
@@ -165,3 +163,31 @@ def classify():
 
 if __name__ == "__main__":
     app.run(debug=True)
+
+def evaluate_conversation(chat_history):
+    try:
+        # Classify the conversation for communication quality
+        response = co.classify(
+            model = 'bfc37152-1c6c-4486-84bb-843dd7d9df11-ft',  # MODEL ID HERE
+            inputs = [chat_history]
+        )
+
+        # Find the classification with the highest confidence
+        highest_confidence = max(response.classifications, key = lambda x: x.confidence)
+        label_scores = {"one": "10%", "two": "20%", "three": "30%", "four": "40%", "five": "50%", "six": "60%", "seven": "70%", "eight": "80%", "nine": "90%", "ten": "100%",
+        }
+
+        label = highest_confidence.prediction  # labels from "one", "two", ..., "ten"
+        confidence_level = highest_confidence.confidence
+
+        # If confidence is low, prompt for more information
+        if confidence_level < 0.25:
+            return {"error": "Confidence too low. Please provide more details."}, 400
+
+        return {
+            "conversation_rating": label_scores.get(label),
+            "confidence": confidence_level
+        }
+
+    except Exception as e:
+        return {"error": str(e)}, 500
