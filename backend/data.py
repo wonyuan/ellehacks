@@ -9,6 +9,9 @@ app = Flask(__name__)
 cors = CORS(app)
 
 api_key = os.getenv('API_KEY')
+if not api_key:
+    raise ValueError("API_KEY not found in environment variables.")
+
 co = cohere.Client(api_key)
 
 chat_history = []
@@ -28,11 +31,11 @@ def classify():
         paragraph = data.get("paragraph", "").strip()
 
         if not paragraph:
-            return jsonify({"error": "No paragraph provided"}), 400
+            return jsonify({"error": "No paragraph provided!"}), 400
 
         response = co.classify(
-            model='5ae71449-3ae0-488f-a703-eb0275839e8f-ft',
-            inputs=[paragraph]
+            model = '5ae71449-3ae0-488f-a703-eb0275839e8f-ft',
+            inputs = [paragraph]
         )
 
         highest_confidence = max(response.classifications, key=lambda x: x.confidence)
@@ -56,17 +59,17 @@ def classify():
         return jsonify({"error": str(e)}), 500
 
 
-@app.route('/summary', methods=['POST'])
+@app.route('/summary', methods = ['POST'])
 def refine():
     data = request.json
     situation = data.get("situation")
 
     stream = co.chat_stream( 
-        model='c4ai-aya-expanse-32b',
-        message='BASED ON THIS INFORMATION:'+ situation + " CREATE A PROFILE SUMMARY LIKE THIS: Hi I am a child with ____ and I am ___. Make the description 2 to 3 sentences and try to create something based on the given situation (not overly creative but target general child pyscology - as accurate as possible)",
-        temperature=0.3,
-        chat_history=[],
-        prompt_truncation='AUTO'
+        model = 'c4ai-aya-expanse-32b',
+        message = 'BASED ON THIS INFORMATION:'+ situation + " CREATE A PROFILE SUMMARY LIKE THIS: Hi I am a child with ____ and I am ___. Make the description 2 to 3 sentences and try to create something based on the given situation (not overly creative but target general child pyscology - as accurate as possible)",
+        temperature = 0.3,
+        chat_history = [],
+        prompt_truncation = 'AUTO'
     ) 
     updated_situation = ""
 
@@ -74,7 +77,7 @@ def refine():
         if event.event_type == "text-generation":
         # Concatenate the generated text to the updated_situation variable
             updated_situation += event.text
-            print(event.text, end='')
+            print(event.text, end = '')
     
     return{
         "profile_intro": updated_situation
@@ -118,11 +121,11 @@ def chat():
 
         # Get the chatbot's response
         response = co.chat(
-            model=chat_id,
-            message=user_input,
-            temperature=0.3,
-            chat_history=chat_history,
-            prompt_truncation='AUTO'
+            model = chat_id,
+            message = user_input,
+            temperature = 0.3,
+            chat_history = chat_history,
+            prompt_truncation = 'AUTO'
         )
 
         # Extract the chatbot's response
@@ -169,7 +172,7 @@ def evaluation():
             inputs = [chat]
         )
          # Find the classification with the highest confidence
-        highest_confidence = max(response.classifications, key=lambda x: x.confidence)
+        highest_confidence = max(response.classifications, key = lambda x: x.confidence)
         label = highest_confidence.prediction
         # confidence_level = highest_confidence.confidence
        
@@ -179,19 +182,25 @@ def evaluation():
         rating = label_scores.get(label)
 
         stream = co.chat_stream( 
-            model='c4ai-aya-expanse-32b',
-            message='BASED ON THIS INFORMATION:'+ situation + "and this overall accuracy percent:" + rating + "give tips on who a parent can improve this conversation:" + chat+ "GIVE THE FOLLOWING: WHAT THEY DID WELL, HOW THEY CAN IMPROVE, HOW TO CONNECT WITH THIS SPECIFIC CHILD.",
-            temperature=0.3,
-            chat_history=[],
-            prompt_truncation='AUTO'
+            model = 'c4ai-aya-expanse-32b',
+            message = (
+                f"Based on the following information: {situation}, and the overall accuracy rating of {rating}, "
+                f"please provide tips on how the parent can improve the conversation: {chat}. "
+                "Include the following: "
+                "1. What the parent did well. "
+                "2. Areas for improvement. "
+                "3. Specific strategies to better connect with this child."),
+            temperature = 0.3,
+            chat_history = [],
+            prompt_truncation = 'AUTO'
         ) 
         output = ""
 
         for event in stream:
             if event.event_type == "text-generation":
         # Concatenate the generated text to the updated_situation variable
-                output+= event.text
-                print(event.text, end='')
+                output += event.text
+                print(event.text, end = '')
     
 
         # # If confidence is low, prompt for more information
