@@ -27,26 +27,25 @@ response = co.classify(
   inputs=[situation])
 print('The confidence levels of the labels are: {}'.format(response.classifications))
 
-classification = "Angry"
+# classification = "Angry"
 # After all chat models are available:
-# classification = max(response.classifications, key=lambda x: x.confidence).prediction
-# print(f"Classified as: {classification}")
+classification = max(response.classifications, key=lambda x: x.confidence).prediction
+print(f"Classified as: {classification}")
 
+# if classification == "Angry":
+#     chat_id = "ef9183fe-75a5-4686-b7ff-14fced618013-ft"
+# elif classification == "Quiet":
+#     chat_id = "ef9183fe-75a5-4686-b7ff-14fced618013-ft"
+# elif classification == "Judgemental":
+#     chat_id = "ef9183fe-75a5-4686-b7ff-14fced618013-ft"
+# elif classification == "happy":
+#     chat_id = "5340c40f-9e3b-4d16-8d4c-9a1d4495e905-ft"
 
-if classification == "Angry":
-    chat_id = "ef9183fe-75a5-4686-b7ff-14fced618013-ft"
-elif classification == "Quiet":
-    chat_id = "ef9183fe-75a5-4686-b7ff-14fced618013-ft"
-elif classification == "Judgemental":
-    chat_id = "ef9183fe-75a5-4686-b7ff-14fced618013-ft"
-elif classification == "happy":
-    chat_id = "5340c40f-9e3b-4d16-8d4c-9a1d4495e905-ft"
-
-# Alt: map labels to chat models
+# Map labels to chat models
 persona_models = {
     "Angry": "ef9183fe-75a5-4686-b7ff-14fced618013-ft",
-    "Quiet": "ef9183fe-75a5-4686-b6ff-14fced618013-ft",  # Placeholder
-    "Judgemental": "ef9183fe-75a5-4686-b6ff-14fced618013-ft",  # Placeholder
+    "Quiet": "ef9183fe-75a5-4686-b7ff-14fced618013-ft",  # Placeholder
+    "Judgemental": "ef9183fe-75a5-4686-b7ff-14fced618013-ft",  # Placeholder
     "Happy": "5340c40f-9e3b-4d16-8d4c-9a1d4495e905-ft"
 }
 
@@ -55,13 +54,10 @@ chat_id = persona_models.get(classification)
 if not chat_id:
     print(f"No model found for classification: {classification}")
     exit()
-# end of alt code
-
-
 
 stream = co.chat_stream( 
   model=chat_id,
-  message='input scenario here?', # could replace with "message=situation"
+  message=situation, # responds to users initial input
   temperature=0.3,
   chat_history=[],
   prompt_truncation='AUTO'
