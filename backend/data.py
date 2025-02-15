@@ -66,7 +66,13 @@ def refine():
 
     stream = co.chat_stream( 
         model='c4ai-aya-expanse-32b',
-        message='BASED ON THIS INFORMATION:'+ situation + " CREATE A PROFILE SUMMARY LIKE THIS: Hi I am a child with ____ and I am ___. Make the description 2 to 2.5 sentences and try to create something based on the given situation (not overly creative but target general child pyscology - as accurate as possible)",
+        message = (
+            f"Based on this information: '{situation}', create a profile summary in the following format: "
+            "'Hi, I am a child with ____ and I am ___.'. "
+            "Make the description 2 to 2.5 sentences long. Focus on general child psychology, ensuring accuracy and relevance to the given situation without being overly creative."
+        )
+
+#        message='BASED ON THIS INFORMATION:'+ situation + " CREATE A PROFILE SUMMARY LIKE THIS: Hi I am a child with ____ and I am ___. Make the description 2 to 2.5 sentences and try to create something based on the given situation (not overly creative but target general child pyscology - as accurate as possible)",
         temperature=0.3,
         chat_history=[],
         prompt_truncation='AUTO'
