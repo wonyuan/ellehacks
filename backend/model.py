@@ -54,8 +54,6 @@ if not chat_id:
     print(f"No model found for classification: {classification}")
     exit()
 
-# message_to_chat = "YOU ARE A PRETEEN/TEENAGER STAY WITH THAT ROLE AND with your pretrained personality:" + classification + ". You are going to help a parent practice talking to there child based on this situation:" + situation + " REMEBER YOU ARE THE CHILD SO STAY IN CHARACTER. Let the parent prompt the conversation and be natural."
-
 message_to_chat = (
     f"You are a teenager with the personality: {classification}. "
     "Your role is to help a parent practice conversations with their child based on the situation they have described. "
@@ -66,8 +64,6 @@ message_to_chat = (
     "Make sure you are open to change. "
     "Here is the context of the situation provided by the parent: " + situation
 )
-
-
 
 print("\nChatbot initialized. Type your message below. Type 'exit' to quit.\n")
 chat_history = [{"role": "system", "message": message_to_chat}]
@@ -89,5 +85,3 @@ while True:
     bot_response = response.text
     chat_history.append({"role": "Chatbot", "message": bot_response})
     print(f"Chatbot: {bot_response}\n")
-
-
