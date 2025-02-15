@@ -19,7 +19,7 @@ print(args.paragraph)
 
 situation = args.paragraph
 
-co = cohere.Client(api_key) 
+co = cohere.Client(api_key)
 response = co.classify(
   model='5ae71449-3ae0-488f-a703-eb0275839e8f-ft',
   inputs=[situation])
