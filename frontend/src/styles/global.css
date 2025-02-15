@@ -9,3 +9,11 @@
   -moz-osx-font-smoothing: grayscale;
   -webkit-text-size-adjust: 100%;
 }
+
+body {
+  background-image: url('/bg.png'); /* Change to your image path */
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed; /* Keeps it fixed while scrolling */
+}
