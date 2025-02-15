@@ -8,11 +8,9 @@ from flask_cors import CORS
 load_dotenv()
 
 app = Flask(__name__)
-CORS(app) 
+cors = CORS(app)
 
-app = Flask(__name__)
 api_key = os.getenv('API_KEY')
-
 co = cohere.Client(api_key)
 
 persona_models = {
@@ -23,7 +21,7 @@ persona_models = {
 }
 
 @app.route('/classify', methods=['POST'])
-def classify_text():
+def classify():
     try:
         data = request.get_json()
         paragraph = data.get("paragraph", "").strip()
@@ -55,3 +53,6 @@ def classify_text():
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+if __name__ == "__main__":
+    app.run(debug=True)

@@ -12,7 +12,7 @@ import {
 } from '@mantine/core';
 import { IconSend, IconArrowLeft } from '@tabler/icons-react';
 import ChatMessage from '@molecules/ChatMessage';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { theme } from '@styles/theme';
 import { profiles } from '@constants/personas';
 
@@ -27,6 +27,10 @@ const Chat = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const location = useLocation();
+  const { persona, paragraph } = location.state || {}; 
+  console.log('YAA', persona, paragraph);
 
   const name = 'quiet quentin';
   const profile = profiles[name];

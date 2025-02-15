@@ -21,26 +21,27 @@ export const personas = {
     },
   };
 
-
+  // fetch profile name and get the corresponding profile
+  // scenario fetched separately 
   export const profiles = {
     "angry adam": {
         headshot: "/bob.png",
         name: "angry adam",
-        scenario: "temper tantrums, broken plates, and lots and lots of yelling. did i do something wrong?",
+        scenario: 'I am a high school student who needs help with homework, in particular math but i suck at it and im always mad at my mom! always mad!'
     },
     "quiet quentin": {
         headshot: "/bob.png",
         name: "angry adam",
-        scenario: "temper tantrums, broken plates, and lots and lots of yelling. did i do something wrong?",
+        scenario: 'I am a high school student who needs help with homework, in particular math but i suck at it and im always mad at my mom! always mad!'
     },
     "happy hannah": {
         headshot: "/bob.png",
         name: "angry adam",
-        scenario: "temper tantrums, broken plates, and lots and lots of yelling. did i do something wrong?",
+        scenario: 'I am a high school student who needs help with homework, in particular math but i suck at it and im always mad at my mom! always mad!'
     },
     "judgemental judy": {
         headshot: "/bob.png",
         name: "angry adam",
-        scenario: "temper tantrums, broken plates, and lots and lots of yelling. did i do something wrong?",
+        scenario: 'I am a high school student who needs help with homework, in particular math but i suck at it and im always mad at my mom! always mad!'
     },
   }
