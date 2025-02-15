@@ -20,12 +20,17 @@ print(args.paragraph)
 situation = args.paragraph
 
 co = cohere.Client(api_key)
+
+# Step 1: Classify the input (match with chat model)
 response = co.classify(
   model='5ae71449-3ae0-488f-a703-eb0275839e8f-ft',
   inputs=[situation])
 print('The confidence levels of the labels are: {}'.format(response.classifications))
 
 classification = "Angry"
+# After all chat models are available:
+# classification = max(response.classifications, key=lambda x: x.confidence).prediction
+# print(f"Classified as: {classification}")
 
 
 if classification == "Angry":
@@ -37,14 +42,32 @@ elif classification == "Judgemental":
 elif classification == "happy":
     chat_id = "5340c40f-9e3b-4d16-8d4c-9a1d4495e905-ft"
 
+# Alt: map labels to chat models
+persona_models = {
+    "Angry": "ef9183fe-75a5-4686-b7ff-14fced618013-ft",
+    "Quiet": "ef9183fe-75a5-4686-b6ff-14fced618013-ft",  # Placeholder
+    "Judgemental": "ef9183fe-75a5-4686-b6ff-14fced618013-ft",  # Placeholder
+    "Happy": "5340c40f-9e3b-4d16-8d4c-9a1d4495e905-ft"
+}
+
+chat_id = persona_models.get(classification)
+
+if not chat_id:
+    print(f"No model found for classification: {classification}")
+    exit()
+# end of alt code
+
+
+
 stream = co.chat_stream( 
   model=chat_id,
-  message='input scenario here?',
+  message='input scenario here?', # could replace with "message=situation"
   temperature=0.3,
   chat_history=[],
   prompt_truncation='AUTO'
 ) 
 
+# Stream response
 for event in stream:
   if event.event_type == "text-generation":
     print(event.text, end='')
