@@ -77,16 +77,17 @@ def chat():
 
         # Return bot's response and the updated chat history
         return jsonify({"bot_response": bot_response})
+    
 # want chat history from backend 
     elif request.method == 'GET':
         # Return the current chat history
         return jsonify({"chat_history": chat_history})
 
 
-@app.route('/evaluate', methods=['POST'])
+@app.route('/evaluate', methods=['GET'])
 def evaluate():
     global chat_history
-    # Get chat history from the frontend request
+    # Get chat history from stored variable 
     data = request.json
     chat_history = data.get("chat_history")
 
