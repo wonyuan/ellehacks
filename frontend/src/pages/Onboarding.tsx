@@ -20,15 +20,19 @@ const Onboarding = () => {
     requestByDefault: false,
   });
 
-//   console.log(persona);
-
-  const handleSubmit = async () => {
+const handleSubmit = async () => {
     setLoading(true);
-    await makeRequest({ paragraph: problem });
+    const response = await makeRequest({ paragraph: problem });
     setLoading(false);
-    setProblem("");
-    navigate("/chat");
+    
+    if (response) {
+      navigate("/chat", { state: { persona: response, paragraph: problem } });
+      setProblem('');
+    }
   };
+  
+
+  // post paragraph to backend get it again
 
   return (
     <MantineProvider theme={theme}>
