@@ -79,8 +79,8 @@ const Onboarding = () => {
                 value={problem}
                 onChange={(event) => setProblem(event.currentTarget.value)}
                 placeholder="give me the details..."
-                size="md"
-                sx={{ marginTop: "24px", marginBottom: "24px" }}
+                size="lg"
+                sx={{ marginTop: "24px", marginBottom: "24px", height:"200px" }}
             />
             <Text sx={{ fontSize: "16px", color: m.colors.ebony[4], marginBottom: "24px" }} fw={500}>
                 we'll then assess your situation and drop you into a conflict scenario with a teenager persona most similar to
@@ -128,7 +128,7 @@ const Onboarding = () => {
                 marginTop: "24px",
                 padding: "10px 12px",
                 }}
-                onClick={() => navigate("/chatting")}
+                onClick={() => navigate("/chat")}
             >
                 <Text sx={{ fontSize: "12px", marginRight: "4px" }} fw={600}>
                 let's go!
