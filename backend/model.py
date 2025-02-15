@@ -60,7 +60,7 @@ def evaluate_conversation(chat_history):
     try:
         # Classify the conversation for communication quality
         response = co.classify(
-            model = 'your-finetuned-model-id',  # MODEL ID HERE
+            model = 'bfc37152-1c6c-4486-84bb-843dd7d9df11-ft',  # MODEL ID HERE
             inputs = [chat_history]
         )
 
