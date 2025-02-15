@@ -15,7 +15,8 @@ import ChatMessage from '@molecules/ChatMessage';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { theme } from '@styles/theme';
 import { profiles } from '@constants/personas';
-import { fetchChat } from '@api/messages'; // Import the fetchChat function
+import { fetchChat } from '@api/messages';
+import { fetchScenario } from '@api/scenario';
 
 interface Message {
   text: string;
@@ -27,22 +28,40 @@ const Chat = () => {
   const navigate = useNavigate();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
+  const [scenario, setScenario] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const location = useLocation();
   const { persona, paragraph } = location.state || {}; 
-  console.log('YAA', persona, paragraph);
+  // console.log('YAA', persona, paragraph);
   const classification = persona?.classification as keyof typeof profiles;
-
   const profile = profiles[classification];
+
+  useEffect(() => {
+    const fetchScenarioData = async () => {
+      if (paragraph) {
+        try {
+          const data = await fetchScenario({ params: { situation: paragraph } });
+          setScenario(data.profile_intro);
+        } catch (error) {
+          console.error("Error fetching scenario:", error);
+        }
+      }
+    };
+
+    fetchScenarioData();
+  }, [paragraph]); 
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
+  // const submitChat = async () => {
+
+  // }
+
   const sendMessage = async () => {
     if (!input.trim()) return;
-
     const userMessage = input;
     setMessages((prev) => [...prev, { text: userMessage, isUser: true }]);
     setInput('');
@@ -87,7 +106,7 @@ const Chat = () => {
               top: '-48px',
               zIndex: 10,
             }}
-            onClick={() => navigate('/')}
+            onClick={() => navigate('/onboarding')}
           >
             <IconArrowLeft size={20} />
             <Text sx={{ fontSize: '12px', marginLeft: '8px' }} fw={600}>
@@ -100,7 +119,7 @@ const Chat = () => {
               <Box
                 sx={{
                   height: '80vh',
-                  backgroundColor: m.colors.snow[2],
+                  backgroundColor: m.colors.snow[1],
                   borderRadius: '10px',
                   padding: '24px',
                   boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
@@ -109,13 +128,22 @@ const Chat = () => {
                   alignItems: 'left',
                 }}
               >
-                <Text fw={700} sx={{ fontSize: '20px', color: m.colors.ebony[4], marginBottom: '16px' }}>
+                <Text fw={700} sx={{ fontSize: '20px', color: m.colors.ebony[3], marginBottom: '16px' }}>
                   {profile.name}
                 </Text>
                 <Avatar color="blue" radius="sm" size={160} src={profile.headshot} sx={{marginBottom: "24px"}}/>
-                <Text sx={{ fontSize: '14px', color: m.colors.ebony[3] }}>
-                  so here's the sketch... {profile.scenario}
+                <Text fw={700} sx={{ fontSize: '14px', color: m.colors.ebony[3] }}>
+                so here's the sketch... 
                 </Text>
+                <Text sx={{ fontSize: '14px', color: m.colors.ebony[3], marginBottom: "42px"}}>
+                  {scenario}
+                </Text>
+                <Button
+                  onClick={() => navigate('/results')}
+                  variant="gradient"
+                  gradient={{ from: m.colors.snow[2], to: m.colors.snow[4], deg: 12 }}>
+                  i'm done
+                </Button>
               </Box>
             </Grid.Col>
 
@@ -132,7 +160,6 @@ const Chat = () => {
                   justifyContent: 'space-between',
                 }}
               >
-                <Text><i>{profile.name} is ready to speak... ask them what's wrong</i></Text>
                 <Box
                   sx={{
                     flexGrow: 1,
@@ -141,6 +168,7 @@ const Chat = () => {
                     flexDirection: 'column',
                   }}
                 >
+                  <Text><i>{profile.name} is ready to speak... try to figure out whats wrong</i></Text>
                   {messages.map((msg, index) => (
                     <ChatMessage key={index} text={msg.text} isUser={msg.isUser} />
                   ))}

@@ -59,17 +59,17 @@ def classify():
         return jsonify({"error": str(e)}), 500
 
 
-@app.route('/summary', methods = ['POST'])
+@app.route('/refined', methods=['POST'])
 def refine():
     data = request.json
     situation = data.get("situation")
 
     stream = co.chat_stream( 
-        model = 'c4ai-aya-expanse-32b',
-        message = 'BASED ON THIS INFORMATION:'+ situation + " CREATE A PROFILE SUMMARY LIKE THIS: Hi I am a child with ____ and I am ___. Make the description 2 to 3 sentences and try to create something based on the given situation (not overly creative but target general child pyscology - as accurate as possible)",
-        temperature = 0.3,
-        chat_history = [],
-        prompt_truncation = 'AUTO'
+        model='c4ai-aya-expanse-32b',
+        message='BASED ON THIS INFORMATION:'+ situation + " CREATE A PROFILE SUMMARY LIKE THIS: Hi I am a child with ____ and I am ___. Make the description 2 to 2.5 sentences and try to create something based on the given situation (not overly creative but target general child pyscology - as accurate as possible)",
+        temperature=0.3,
+        chat_history=[],
+        prompt_truncation='AUTO'
     ) 
     updated_situation = ""
 
@@ -86,21 +86,17 @@ def refine():
 @app.route('/chat', methods=['POST'])
 def chat():
     global chat_history
-# sending data to backedn
     if request.method == 'POST':
-        # Get classification, situation, and user input from the frontend request
         data = request.json
         classification = data.get("classification")
         situation = data.get("situation")
         user_input = data.get("user_input")
 
-        # Get the chat model based on the classification
         chat_id = persona_models.get(classification)
 
         if not chat_id:
             return jsonify({"error": f"No model found for classification: {classification}"}), 400
 
-        # Compose the message to instruct the chatbot
         message_to_chat = (
             f"You are a teenager with the personality: {classification}. "
             "Your role is to help a parent practice conversations with their child based on the situation they have described. "
@@ -112,14 +108,11 @@ def chat():
             f"Here is the context of the situation provided by the parent: {situation}"
         )
 
-        # Initialize chat history for new chat session
         if not chat_history:
             chat_history = [{"role": "system", "message": message_to_chat}]
 
-        # Append the user's message to chat history
         chat_history.append({"role": "user", "message": user_input})
 
-        # Get the chatbot's response
         response = co.chat(
             model = chat_id,
             message = user_input,
@@ -128,13 +121,8 @@ def chat():
             prompt_truncation = 'AUTO'
         )
 
-        # Extract the chatbot's response
         bot_response = response.text
-
-        # Append the bot's response to chat history
         chat_history.append({"role": "Chatbot", "message": bot_response})
-
-        # Return bot's response and the updated chat history
         return jsonify({"bot_response": bot_response})
     
 # want chat history from backend 
@@ -214,7 +202,6 @@ def evaluation():
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-
 
 if __name__ == "__main__":
     app.run(debug = True)
