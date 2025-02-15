@@ -30,18 +30,18 @@ export const personas = {
         scenario: 'I am a high school student who needs help with homework, in particular math but i suck at it and im always mad at my mom! always mad!'
     },
     "Quiet Quintin": {
-        headshot: "/bob.png",
-        name: "angry adam",
+        headshot: "/eve.png",
+        name: "quiet quintin",
         scenario: 'I am a high school student who needs help with homework, in particular math but i suck at it and im always mad at my mom! always mad!'
     },
     "Happy Hannah": {
-        headshot: "/bob.png",
-        name: "angry adam",
+        headshot: "/fred.png",
+        name: "happy hannah",
         scenario: 'I am a high school student who needs help with homework, in particular math but i suck at it and im always mad at my mom! always mad!'
     },
     "Judgemental Judy": {
-        headshot: "/bob.png",
-        name: "angry adam",
+        headshot: "/alice.png",
+        name: "judgemental judy",
         scenario: 'I am a high school student who needs help with homework, in particular math but i suck at it and im always mad at my mom! always mad!'
     },
   }

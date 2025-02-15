@@ -23,21 +23,17 @@ persona_models = {
 @app.route('/chat', methods=['POST'])
 def chat():
     global chat_history
-# sending data to backedn
     if request.method == 'POST':
-        # Get classification, situation, and user input from the frontend request
         data = request.json
         classification = data.get("classification")
         situation = data.get("situation")
         user_input = data.get("user_input")
 
-        # Get the chat model based on the classification
         chat_id = persona_models.get(classification)
 
         if not chat_id:
             return jsonify({"error": f"No model found for classification: {classification}"}), 400
 
-        # Compose the message to instruct the chatbot
         message_to_chat = (
             f"You are a teenager with the personality: {classification}. "
             "Your role is to help a parent practice conversations with their child based on the situation they have described. "
@@ -49,14 +45,11 @@ def chat():
             f"Here is the context of the situation provided by the parent: {situation}"
         )
 
-        # Initialize chat history for new chat session
         if not chat_history:
             chat_history = [{"role": "system", "message": message_to_chat}]
 
-        # Append the user's message to chat history
         chat_history.append({"role": "user", "message": user_input})
 
-        # Get the chatbot's response
         response = co.chat(
             model=chat_id,
             message=user_input,
@@ -65,13 +58,8 @@ def chat():
             prompt_truncation='AUTO'
         )
 
-        # Extract the chatbot's response
         bot_response = response.text
-
-        # Append the bot's response to chat history
         chat_history.append({"role": "Chatbot", "message": bot_response})
-
-        # Return bot's response and the updated chat history
         return jsonify({"bot_response": bot_response})
     
 # want chat history from backend 
@@ -99,13 +87,11 @@ def evaluate():
 @app.route('/evaluation', methods=['POST'])
 def evaluation():
     try:
-        # Classify the conversation for communication quality
         response = co.classify(
             model = 'bfc37152-1c6c-4486-84bb-843dd7d9df11-ft',  # MODEL ID HERE
             inputs = [chat_history]
         )
 
-        # Find the classification with the highest confidence
         highest_confidence = max(response.classifications, key = lambda x: x.confidence)
         label_scores = {"one": "10%", "two": "20%", "three": "30%", "four": "40%", "five": "50%", "six": "60%", "seven": "70%", "eight": "80%", "nine": "90%", "ten": "100%",
         }
@@ -113,7 +99,6 @@ def evaluation():
         label = highest_confidence.prediction  # labels from "one", "two", ..., "ten"
         confidence_level = highest_confidence.confidence
 
-        # If confidence is low, prompt for more information
         if confidence_level < 0.25:
             return {"error": "Confidence too low. Please provide more details."}, 400
 
@@ -155,6 +140,30 @@ def classify():
             "confidence": confidence_level,
             "persona_model_id": chat_id
         })
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/refined', methods=['GET'])
+def refine():
+    try:
+        situation = request.args.get("situation")
+        if not situation:
+            return jsonify({"error": "No situation provided"}), 400
+
+        stream = co.chat_stream(
+            model='c4ai-aya-expanse-32b',
+            message=f'BASED ON THIS INFORMATION: {situation} ...',
+            temperature=0.3,
+            chat_history=[],
+            prompt_truncation='AUTO'
+        ) 
+        updated_situation = "".join(event.text for event in stream if event.event_type == "text-generation")
+
+        if not updated_situation:
+            return jsonify({"error": "No response generated"}), 500
+
+        return jsonify({"profile_intro": updated_situation})
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
