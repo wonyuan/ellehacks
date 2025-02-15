@@ -4,42 +4,42 @@ import argparse
 import cohere 
 from flask import Flask, request, jsonify
 
-# Load the .env file
-load_dotenv()
+# # Load the .env file
+# load_dotenv()
 
-app = Flask(__name__)
-# Access the API key
-api_key = os.getenv('API_KEY')
+# app = Flask(__name__)
+# # Access the API key
+# api_key = os.getenv('API_KEY')
 
-if api_key is None:    raise ValueError("API key not found. Please ensure the .env file contains the correct 'API_KEY'.")
+# if api_key is None:    raise ValueError("API key not found. Please ensure the .env file contains the correct 'API_KEY'.")
 
-parser = argparse.ArgumentParser(description = "Classifer")
-parser.add_argument("paragraph", type = str, help = "Input paragraph")
-args = parser.parse_args()
-print(args.paragraph)
+# parser = argparse.ArgumentParser(description = "Classifer")
+# parser.add_argument("paragraph", type = str, help = "Input paragraph")
+# args = parser.parse_args()
+# print(args.paragraph)
 
-situation = args.paragraph
+# situation = args.paragraph
 
-co = cohere.Client(api_key)
+# co = cohere.Client(api_key)
 
-# Step 1: Classify the input (match with chat model)
-response = co.classify(
-    model='5ae71449-3ae0-488f-a703-eb0275839e8f-ft',
-    inputs=[situation])
-print('The confidence levels of the labels are: {}'.format(response.classifications))
+# # Step 1: Classify the input (match with chat model)
+# response = co.classify(
+#     model='5ae71449-3ae0-488f-a703-eb0275839e8f-ft',
+#     inputs=[situation])
+# print('The confidence levels of the labels are: {}'.format(response.classifications))
 
-# Find top chat model based on classification results
-highest_confidence = max(response.classifications, key = lambda x: x.confidence)
-classification = highest_confidence.prediction
+# # Find top chat model based on classification results
+# highest_confidence = max(response.classifications, key = lambda x: x.confidence)
+# classification = highest_confidence.prediction
 
-confidence_level = highest_confidence.confidence
-print(f"Classified as: {classification}")
-print(f"Confidence level: {confidence_level}")
+# confidence_level = highest_confidence.confidence
+# print(f"Classified as: {classification}")
+# print(f"Confidence level: {confidence_level}")
 
-# If confidence level is too low (below 25%):
-if confidence_level < 0.25:
-    print("Confidence is too low. Please provide a more descriptive message.")
-    exit()
+# # If confidence level is too low (below 25%):
+# if confidence_level < 0.25:
+#     print("Confidence is too low. Please provide a more descriptive message.")
+#     exit()
 
 # chat_history = []
 

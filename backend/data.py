@@ -24,7 +24,7 @@ persona_models = {
 }
 
 
-@app.route('/chat', methods=['POST', 'GET'])
+@app.route('/chat', methods=['POST'])
 def chat():
     global chat_history
 # sending data to backedn
@@ -79,9 +79,9 @@ def chat():
         return jsonify({"bot_response": bot_response})
     
 # want chat history from backend 
-    elif request.method == 'GET':
-        # Return the current chat history
-        return jsonify({"chat_history": chat_history})
+    # elif request.method == 'GET':
+    #     # Return the current chat history
+    #     return jsonify({"chat_history": chat_history})
 
 
 @app.route('/evaluate', methods=['GET'])
