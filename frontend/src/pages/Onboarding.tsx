@@ -1,15 +1,34 @@
 import { Box, Text, Button, Flex, MantineProvider, useMantineTheme, Textarea, Card, Image, Grid } from '@mantine/core';
+import useRequest from "@hooks/useRequest";
 import { useState } from 'react';
 import { theme } from "@styles/theme.ts";
 import { IconArrowLeft, IconArrowRight } from '@tabler/icons-react';
 import { personas } from "@constants/personas.ts"
 import { useNavigate } from "react-router-dom";
+import { fetchPersona } from "@api/persona";
+import useLoading from "@context/loadingContext";
 
 
 const Onboarding = () => {
   const m = useMantineTheme();
   const [problem, setProblem] = useState('');
   const navigate = useNavigate();
+  const { setLoading } = useLoading();
+
+  const { makeRequest } = useRequest({
+    request: fetchPersona,
+    requestByDefault: false,
+  });
+
+//   console.log(persona);
+
+  const handleSubmit = async () => {
+    setLoading(true);
+    await makeRequest({ paragraph: problem });
+    setLoading(false);
+    setProblem("");
+    navigate("/chat");
+  };
 
   return (
     <MantineProvider theme={theme}>
@@ -128,7 +147,7 @@ const Onboarding = () => {
                 marginTop: "24px",
                 padding: "10px 12px",
                 }}
-                onClick={() => navigate("/chat")}
+                onClick={handleSubmit}
             >
                 <Text sx={{ fontSize: "12px", marginRight: "4px" }} fw={600}>
                 let's go!
