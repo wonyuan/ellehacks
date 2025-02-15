@@ -51,8 +51,8 @@ if confidence_level < 0.25:
 # Map labels to chat models
 persona_models = {
     "Angry Adam": "ef9183fe-75a5-4686-b7ff-14fced618013-ft",
-    "Quiet Quintin": "ebbfe6bd-0c47-42e6-8afe-949a8bfe9e34-ft",  
-    "Judgmental Judy": "d5452d1d-d8bd-42d6-a28c-321f79f96572-ft", 
+    "Quiet Quintin": "ebbfe6bd-0c47-42e6-8afe-949a8bfe9e34-ft",
+    "Judgmental Judy": "d5452d1d-d8bd-42d6-a28c-321f79f96572-ft",
     "Happy Hannah": "5340c40f-9e3b-4d16-8d4c-9a1d4495e905-ft"
 }
 
@@ -62,9 +62,9 @@ if not chat_id:
     print(f"No model found for classification: {classification}")
     exit()
 
-message_to_chat = "YOU ARE A PRETEEN/TEENAGER STAY WITH THAT ROLE AND with your pretrained personality:" + classification + ". You are going to help a parent practice talking to there child based on this situation:" + situation +" REMEBER YOU ARE THE CHILD SO STAY IN CHARACTER. Let the parent prompt the conversation and be natural."
+message_to_chat = "YOU ARE A PRETEEN/TEENAGER STAY WITH THAT ROLE AND with your pretrained personality:" + classification + ". You are going to help a parent practice talking to there child based on this situation:" + situation + " REMEBER YOU ARE THE CHILD SO STAY IN CHARACTER. Let the parent prompt the conversation and be natural."
 
-# stream = co.chat_stream( 
+# stream = co.chat_stream(
 #     model = chat_id,
 #     message = message_to_chat, # responds to users initial input
 #     temperature = 0.3,
