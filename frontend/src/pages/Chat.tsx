@@ -15,6 +15,7 @@ import ChatMessage from '@molecules/ChatMessage';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { theme } from '@styles/theme';
 import { profiles } from '@constants/personas';
+import { fetchChat } from '@api/messages'; // Import the fetchChat function
 
 interface Message {
   text: string;
@@ -31,10 +32,9 @@ const Chat = () => {
   const location = useLocation();
   const { persona, paragraph } = location.state || {}; 
   console.log('YAA', persona, paragraph);
+  const classification = persona?.classification as keyof typeof profiles;
 
-  const name = 'quiet quentin';
-  const profile = profiles[name];
-
+  const profile = profiles[classification];
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -47,16 +47,20 @@ const Chat = () => {
     setMessages((prev) => [...prev, { text: userMessage, isUser: true }]);
     setInput('');
 
+    const params = {
+      classification: persona.classification,
+      situation: paragraph, 
+      user_input: userMessage,
+    };
+
     try {
-      const response = await fetch('/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: userMessage }),
-      });
-      const data = await response.json();
-      setMessages((prev) => [...prev, { text: data.response, isUser: false }]);
+      const data = await fetchChat({ params });
+      console.log(data);
+      const botResponse = data?.bot_response || "Sorry, I couldn't get a response.";
+      console.log('bro', botResponse);
+      setMessages((prev) => [...prev, { text: botResponse, isUser: false }]);
     } catch (error) {
-      console.error('Error fetching Cohere response:', error);
+      console.error('Error fetching chatbot response:', error);
     }
   };
 
@@ -128,7 +132,7 @@ const Chat = () => {
                   justifyContent: 'space-between',
                 }}
               >
-                <Text><i>{profile.name} is ready to speak...</i></Text>
+                <Text><i>{profile.name} is ready to speak... ask them what's wrong</i></Text>
                 <Box
                   sx={{
                     flexGrow: 1,
