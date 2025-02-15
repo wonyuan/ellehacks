@@ -102,26 +102,47 @@ def evaluate():
 def evaluation():
     try:
         # Classify the conversation for communication quality
+        data = request.json
+        situation = data.get("situation")
+        chat = data.get("chat")
+
         response = co.classify(
             model = 'bfc37152-1c6c-4486-84bb-843dd7d9df11-ft',  # MODEL ID HERE
-            inputs = [chat_history]
+            inputs = [chat]
         )
-
-        # Find the classification with the highest confidence
-        highest_confidence = max(response.classifications, key = lambda x: x.confidence)
+         # Find the classification with the highest confidence
+        highest_confidence = max(response.classifications, key=lambda x: x.confidence)
+        label = highest_confidence.prediction
+        # confidence_level = highest_confidence.confidence
+       
         label_scores = {"one": "10%", "two": "20%", "three": "30%", "four": "40%", "five": "50%", "six": "60%", "seven": "70%", "eight": "80%", "nine": "90%", "ten": "100%",
         }
 
-        label = highest_confidence.prediction  # labels from "one", "two", ..., "ten"
-        confidence_level = highest_confidence.confidence
+        rating = label_scores.get(label)
 
-        # If confidence is low, prompt for more information
-        if confidence_level < 0.25:
-            return {"error": "Confidence too low. Please provide more details."}, 400
+        stream = co.chat_stream( 
+            model='c4ai-aya-expanse-32b',
+            message='BASED ON THIS INFORMATION:'+ situation + "and this overall accuracy percent:" + rating + "give tips on who a parent can improve this conversation:" + chat+ "GIVE THE FOLLOWING: WHAT THEY DID WELL, HOW THEY CAN IMPROVE, HOW TO CONNECT WITH THIS SPECIFIC CHILD."
+            temperature=0.3,
+            chat_history=[],
+            prompt_truncation='AUTO'
+        ) 
+        output = ""
+
+        for event in stream:
+            if event.event_type == "text-generation":
+        # Concatenate the generated text to the updated_situation variable
+                output+= event.text
+                print(event.text, end='')
+    
+
+        # # If confidence is low, prompt for more information
+        # if confidence_level < 0.25:
+        #     return {"error": "Confidence too low. Please provide more details."}, 400
 
         return {
-            "conversation_rating": label_scores.get(label),
-            "confidence": confidence_level
+            "conversation_rating": rating,
+            "Tips": output
         }
 
     except Exception as e:
@@ -164,34 +185,38 @@ def classify():
 if __name__ == "__main__":
     app.run(debug=True)
 
-def evaluate_conversation(chat_history):
-    try:
-        # Classify the conversation for communication quality
-        response = co.classify(
-            model = 'bfc37152-1c6c-4486-84bb-843dd7d9df11-ft',  # MODEL ID HERE
-            inputs = [chat_history]
-        )
+# def evaluate_conversation(chat_history):
+#     try:
+#         # Classify the conversation for communication quality
+#         response = co.classify(
+#             model = 'bfc37152-1c6c-4486-84bb-843dd7d9df11-ft',  # MODEL ID HERE
+#             inputs = [chat_history]
+#         )
 
-        # Find the classification with the highest confidence
-        highest_confidence = max(response.classifications, key = lambda x: x.confidence)
-        label_scores = {"one": "10%", "two": "20%", "three": "30%", "four": "40%", "five": "50%", "six": "60%", "seven": "70%", "eight": "80%", "nine": "90%", "ten": "100%",
-        }
+#         # Find the classification with the highest confidence
+#         highest_confidence = max(response.classifications, key = lambda x: x.confidence)
+#         label_scores = {"one": "10%", "two": "20%", "three": "30%", "four": "40%", "five": "50%", "six": "60%", "seven": "70%", "eight": "80%", "nine": "90%", "ten": "100%",
+#         }
 
-        label = highest_confidence.prediction  # labels from "one", "two", ..., "ten"
-        confidence_level = highest_confidence.confidence
+#         label = highest_confidence.prediction  # labels from "one", "two", ..., "ten"
+#         confidence_level = highest_confidence.confidence
 
-        # If confidence is low, prompt for more information
-        if confidence_level < 0.25:
-            return {"error": "Confidence too low. Please provide more details."}, 400
+#         # If confidence is low, prompt for more information
+#         if confidence_level < 0.25:
+#             return {"error": "Confidence too low. Please provide more details."}, 400
 
-        return {
-            "conversation_rating": label_scores.get(label),
-            "confidence": confidence_level
-        }
-    except Exception as e:
-        return {"error": str(e)}, 500
+#         return {
+#             "conversation_rating": label_scores.get(label),
+#             "confidence": confidence_level
+#         }
+#     except Exception as e:
+#         return {"error": str(e)}, 500
 
-def refine(situation):
+@app.route('/summary', methods=['POST'])
+def refine():
+    data = request.json
+    situation = data.get("situation")
+
     stream = co.chat_stream( 
         model='c4ai-aya-expanse-32b',
         message='BASED ON THIS INFORMATION:'+ situation + " CREATE A PROFILE SUMMARY LIKE THIS: Hi I am a child with ____ and I am ___. Make the description 2 to 3 sentences and try to create something based on the given situation (not overly creative but target general child pyscology - as accurate as possible)",
