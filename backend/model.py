@@ -3,6 +3,7 @@ from dotenv import load_dotenv
 import argparse
 import cohere 
 from flask import Flask, request, jsonify
+from flask_cors import CORS 
 
 # # Load the .env file
 # load_dotenv()
@@ -95,6 +96,29 @@ from flask import Flask, request, jsonify
 
 
 def evaluate_conversation(chat_history):
-    # Example evaluation logic: score based on length of the conversation
-    score = len(chat_history)  # Simple score based on the length of the chat history
-    return score
+    try:
+        # Classify the conversation for communication quality
+        response = co.classify(
+            model = 'your-finetuned-model-id',  # MODEL ID HERE
+            inputs = [chat_history]
+        )
+
+        # Find the classification with the highest confidence
+        highest_confidence = max(response.classifications, key = lambda x: x.confidence)
+        label_scores = {"one": "10%", "two": "20%", "three": "30%", "four": "40%", "five": "50%", "six": "60%", "seven": "70%", "eight": "80%", "nine": "90%", "ten": "100%",
+        }
+
+        label = highest_confidence.prediction  # labels from "one", "two", ..., "ten"
+        confidence_level = highest_confidence.confidence
+
+        # If confidence is low, prompt for more information
+        if confidence_level < 0.25:
+            return {"error": "Confidence too low. Please provide more details."}, 400
+
+        return {
+            "conversation_rating": label_scores.get(label),
+            "confidence": confidence_level
+        }
+
+    except Exception as e:
+        return {"error": str(e)}, 500
