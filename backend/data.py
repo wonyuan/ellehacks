@@ -63,11 +63,12 @@ def refine():
 
     stream = co.chat_stream( 
         model='c4ai-aya-expanse-32b',
-        message='BASED ON THIS INFORMATION:'+ situation + " CREATE A PROFILE SUMMARY LIKE THIS: Hi I am a child with ____ and I am ___. Make the description 2 to 2.5 sentences and try to create something based on the given situation (not overly creative but target general child pyscology - as accurate as possible)",
+        message='BASED ON THIS INFORMATION:'+ situation + " Write a profile summary in the following format: Hi, I am a child with ____ and I am ___. The description should be 2 to 2.5 sentences long and accurately reflect the given situation. Focus on general child psychology to ensure realism, avoiding overly creative or exaggerated details.",
         temperature=0.3,
         chat_history=[],
         prompt_truncation='AUTO'
     ) 
+
     updated_situation = ""
 
     for event in stream:
@@ -150,11 +151,11 @@ def evaluation():
         # Classify the conversation for communication quality
         data = request.json
         situation = data.get("situation")
-        chat = data.get("chat")
+        global chat_history
 
         response = co.classify(
             model = 'bfc37152-1c6c-4486-84bb-843dd7d9df11-ft',  # MODEL ID HERE
-            inputs = [chat]
+            inputs = chat_history
         )
          # Find the classification with the highest confidence
         highest_confidence = max(response.classifications, key=lambda x: x.confidence)
@@ -166,29 +167,43 @@ def evaluation():
 
         rating = label_scores.get(label)
 
-        stream = co.chat_stream( 
+        stream = co.chat_stream(
             model='c4ai-aya-expanse-32b',
-            message='BASED ON THIS INFORMATION:'+ situation + "and this overall accuracy percent:" + rating + "give tips on who a parent can improve this conversation:" + chat+ "GIVE THE FOLLOWING: WHAT THEY DID WELL, HOW THEY CAN IMPROVE, HOW TO CONNECT WITH THIS SPECIFIC CHILD.",
+            message='BASED ON THIS INFORMATION:'+ situation + "and this overall accuracy percent:" + rating + 
+                    "give tips on how a parent can improve this conversation:" + chat + 
+                    "GIVE THE FOLLOWING: WHAT THEY DID WELL, HOW THEY CAN IMPROVE, HOW TO CONNECT WITH THIS SPECIFIC CHILD.",
             temperature=0.3,
             chat_history=[],
             prompt_truncation='AUTO'
         ) 
-        output = ""
+
+        well = ""
+        improve = ""
+        connection = ""
 
         for event in stream:
             if event.event_type == "text-generation":
-        # Concatenate the generated text to the updated_situation variable
-                output+= event.text
+                output = event.text
                 print(event.text, end='')
-    
+
+                # Here we separate the outputs based on the content
+                if "what they did well" in output.lower():
+                    well = output
+                elif "how they can improve" in output.lower():
+                    improve = output
+                elif "how to connect" in output.lower():
+                    connection = output
 
         # # If confidence is low, prompt for more information
         # if confidence_level < 0.25:
         #     return {"error": "Confidence too low. Please provide more details."}, 400
+        chat_history = []
 
         return {
             "conversation_rating": rating,
-            "Tips": output
+            "Well": well,
+            "Improvement": improve,
+            "Connection": connection
         }
 
     except Exception as e:
