@@ -188,6 +188,25 @@ def evaluate_conversation(chat_history):
             "conversation_rating": label_scores.get(label),
             "confidence": confidence_level
         }
-
     except Exception as e:
         return {"error": str(e)}, 500
+
+def refine(situation):
+    stream = co.chat_stream( 
+        model='c4ai-aya-expanse-32b',
+        message='BASED ON THIS INFORMATION:'+ situation + " CREATE A PROFILE SUMMARY LIKE THIS: Hi I am a child with ____ and I am ___. Make the description 2 to 3 sentences and try to create something based on the given situation (not overly creative but target general child pyscology - as accurate as possible)",
+        temperature=0.3,
+        chat_history=[],
+        prompt_truncation='AUTO'
+    ) 
+    updated_situation = ""
+
+    for event in stream:
+        if event.event_type == "text-generation":
+        # Concatenate the generated text to the updated_situation variable
+            updated_situation += event.text
+            print(event.text, end='')
+    
+    return{
+        "profile_intro": updated_situation
+    }
