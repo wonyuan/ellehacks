@@ -1,6 +1,6 @@
 from flask import Flask, jsonify, request
 from flask_cors import CORS  # Allow frontend to access backend
-from model import evaluate_conversation
+# from model import evaluate_conversation
 import cohere
 import os
 from dotenv import load_dotenv
@@ -83,7 +83,7 @@ def chat():
     #     # Return the current chat history
     #     return jsonify({"chat_history": chat_history})
 
-
+'''
 @app.route('/evaluate', methods=['GET'])
 def evaluate():
     global chat_history
@@ -98,7 +98,70 @@ def evaluate():
     chat_history = []
 
     return jsonify({"score": score, "message": "Conversation evaluated and history reset."})
+'''
 
+@app.route('/evaluation', methods=['POST'])
+def evaluation():
+    try:
+        # Classify the conversation for communication quality
+        response = co.classify(
+            model = 'bfc37152-1c6c-4486-84bb-843dd7d9df11-ft',  # MODEL ID HERE
+            inputs = [chat_history]
+        )
 
-if __name__ == '__main__':
+        # Find the classification with the highest confidence
+        highest_confidence = max(response.classifications, key = lambda x: x.confidence)
+        label_scores = {"one": "10%", "two": "20%", "three": "30%", "four": "40%", "five": "50%", "six": "60%", "seven": "70%", "eight": "80%", "nine": "90%", "ten": "100%",
+        }
+
+        label = highest_confidence.prediction  # labels from "one", "two", ..., "ten"
+        confidence_level = highest_confidence.confidence
+
+        # If confidence is low, prompt for more information
+        if confidence_level < 0.25:
+            return {"error": "Confidence too low. Please provide more details."}, 400
+
+        return {
+            "conversation_rating": label_scores.get(label),
+            "confidence": confidence_level
+        }
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    
+@app.route('/classify', methods=['POST'])
+def classify():
+    try:
+        data = request.get_json()
+        paragraph = data.get("paragraph", "").strip()
+
+        if not paragraph:
+            return jsonify({"error": "No paragraph provided"}), 400
+
+        response = co.classify(
+            model='5ae71449-3ae0-488f-a703-eb0275839e8f-ft',
+            inputs=[paragraph]
+        )
+
+        highest_confidence = max(response.classifications, key=lambda x: x.confidence)
+        classification = highest_confidence.prediction
+        confidence_level = highest_confidence.confidence
+
+        if confidence_level < 0.25:
+            return jsonify({"error": "Confidence too low. Please provide more details."}), 400
+
+        chat_id = persona_models.get(classification)
+        if not chat_id:
+            return jsonify({"error": f"No model found for classification: {classification}"}), 404
+
+        return jsonify({
+            "classification": classification,
+            "confidence": confidence_level,
+            "persona_model_id": chat_id
+        })
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+if __name__ == "__main__":
     app.run(debug=True)
