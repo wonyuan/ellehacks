@@ -1,4 +1,4 @@
-import { get } from "./fetchRequests";
+import { post } from "./fetchRequests";
 const baseURL = import.meta.env.VITE_BASE_URL;
 
 interface scenarioProps {
@@ -7,9 +7,9 @@ interface scenarioProps {
 
 export const fetchScenario = async ({ params }: scenarioProps) => {
     try {
-      const data = await get({
+      const data = await post({
         url: `${baseURL}/refined`,
-        params: params,
+        body: params,
       });
       console.log('data', data);
       return data;

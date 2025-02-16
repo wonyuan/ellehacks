@@ -199,11 +199,11 @@ def evaluation():
                 print(event.text, end='')
 
                 # Here we separate the outputs based on the content
-                if "What the parent did welll" in output.lower():
+                if "What the parent did welll" in output:
                     well = output
-                elif "Areas for improvement" in output.lower():
+                elif "Areas for improvement" in output:
                     improve = output
-                elif "Specific strategies to better connect with this child" in output.lower():
+                elif "Specific strategies to better connect with this child" in output:
                     connection = output
 
         # # If confidence is low, prompt for more information

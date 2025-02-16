@@ -139,7 +139,7 @@ const Chat = () => {
                   {scenario}
                 </Text>
                 <Button
-                  onClick={() => navigate('/results')}
+                  onClick={() => navigate('/evaluation')}
                   variant="gradient"
                   gradient={{ from: m.colors.snow[2], to: m.colors.snow[4], deg: 12 }}>
                   i'm done
