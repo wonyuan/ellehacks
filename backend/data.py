@@ -10,9 +10,6 @@ app = Flask(__name__)
 cors = CORS(app)
 
 api_key = os.getenv('API_KEY')
-if not api_key:
-    raise ValueError("API_KEY not found in environment variables.")
-
 co = cohere.Client(api_key)
 
 chat_history = []
@@ -67,7 +64,7 @@ def refine():
 
     stream = co.chat_stream( 
         model='c4ai-aya-expanse-32b',
-        message='BASED ON THIS INFORMATION:'+ situation + " CREATE A PROFILE SUMMARY LIKE THIS: Hi I am a child with ____ and I am ___. Make the description 2 to 2.5 sentences and try to create something based on the given situation (not overly creative but target general child pyscology - as accurate as possible)",
+        message='BASED ON THIS INFORMATION:'+ situation + "create a 1-2 description of a teenager, for example: Hi I am a teenager with ____ and I've been having trouble with _____. Please strictly adhere to the short and concise length.",
         temperature=0.3,
         chat_history=[],
         prompt_truncation='AUTO'
@@ -127,41 +124,34 @@ def chat():
         chat_history.append({"role": "Chatbot", "message": bot_response})
         return jsonify({"bot_response": bot_response})
     
-
 @app.route('/evaluation', methods=['POST'])
 def evaluation():
     try:
-        # Classify the conversation for communication quality
-        data = request.json
-        situation = data.get("situation")
-        global chat_history
+        data = request.json  # ✅ No need to extract "params"
+        situation = data.get("scenario")  # ✅ Matches frontend
+        chat = data.get("chat_history")  # ✅ Matches frontend
 
         stream = co.chat_stream( 
             model='c4ai-aya-expanse-32b',
-            message='BASED ON THIS INFORMATION:'+ situation + "and this overall accuracy percent:" + rating + "give tips on who a parent can improve this conversation:" + chat+ "GIVE THE FOLLOWING: WHAT THEY DID WELL, HOW THEY CAN IMPROVE, HOW TO CONNECT WITH THIS SPECIFIC CHILD.",
+            message=f"BASED ON THIS INFORMATION: {situation}. Give tips on how a parent can improve this conversation: {chat}. GIVE THE FOLLOWING: WHAT THEY DID WELL, HOW THEY CAN IMPROVE, HOW TO CONNECT WITH THIS SPECIFIC CHILD.",
             temperature=0.3,
             chat_history=[],
             prompt_truncation='AUTO'
         ) 
 
-        well = ""
-        improve = ""
-        connection = ""
+        well, improve, connection = "", "", ""
 
         for event in stream:
             if event.event_type == "text-generation":
                 output = event.text
-                print(event.text, end='')
+                print(output, end='')
 
-                # Here we separate the outputs based on the content
-                if "What the parent did welll" in output:
+                if "What the parent did well" in output:
                     well = output
                 elif "Areas for improvement" in output:
                     improve = output
                 elif "Specific strategies to better connect with this child" in output:
                     connection = output
-
-        chat_history = []
 
         return {
             "Well": well,
@@ -171,6 +161,7 @@ def evaluation():
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
     
 if __name__ == "__main__":
     app.run(debug = True)
