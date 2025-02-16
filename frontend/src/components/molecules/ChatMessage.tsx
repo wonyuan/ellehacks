@@ -16,6 +16,7 @@ const ChatMessage = ({ text, isUser }: Message & { isUser: boolean }) => {
         borderRadius: '8px',
         margin: '4px 0',
         maxWidth: '80%',
+        fontSize: '12px',
       }}
     >
       <Text>{text}</Text>

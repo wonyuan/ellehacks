@@ -1,18 +1,17 @@
 import { theme } from "@styles/theme.ts";
-import { IconArrowLeft } from '@tabler/icons-react';
-import { Box, Text, Button, Flex, MantineProvider, Divider, useMantineTheme} from '@mantine/core';
-import { useLocation } from 'react-router-dom';
-
+import { IconArrowLeft, IconRepeat } from '@tabler/icons-react';
+import { Box, Text, Button, Flex, MantineProvider, Avatar, useMantineTheme } from '@mantine/core';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { profiles } from '@constants/personas';
 
 const Results = () => {
     const m = useMantineTheme();
     const location = useLocation();
-    const { data, situation } = location.state || {}; 
-    console.log('gh', data, situation);
-    // const lines = data.Output.split('\n');
-    // const parts = lines.map((line: string) => line.split('**'));
-    // console.log(parts)
+    const navigate = useNavigate();
 
+    const { data, situation, persona } = location.state || {}; 
+    const classification = persona?.classification as keyof typeof profiles;
+    const profile = profiles[classification];
 
     return (
       <MantineProvider theme={theme}>
@@ -28,69 +27,97 @@ const Results = () => {
                 backgroundImage:`url('/bg.png')`,
             }}
         >
-            <Flex 
+            <Flex
                 direction="column"
-                sx={{ 
+                sx={{
                     position: "relative",
                     width: "900px",
-                    marginTop: "48px",
+                    marginTop: "40px",
                 }}
             >
-                <Button 
-                    variant="gradient" 
-                    gradient={{ from: m.colors.moss[2], to: m.colors.moss[2], deg: 99 }}
-                    sx={{ 
-                        position: "absolute",
-                        top: "-48px",
-                        zIndex: 10,
-                    }}
-                >
-                    <IconArrowLeft size={20} />
-                    <Text sx={{ fontSize: "12px", marginLeft: "8px" }} fw={600}>
-                        back
-                    </Text>
-                </Button>
+                <Flex direction="row" gap="10px" align="center" sx={{ marginBottom: "12px", marginTop: "-52px" }}>
+                    <Button
+                        variant="gradient"
+                        gradient={{ from: m.colors.moss[2], to: m.colors.moss[2], deg: 99 }}
+                        sx={{ zIndex: 10 }}
+                        onClick={() => navigate('/')}
+                    >
+                        <IconArrowLeft size={20} />
+                        <Text sx={{ fontSize: "12px", marginLeft: "8px" }} fw={600}>
+                            home
+                        </Text>
+                    </Button>
+                    <Button
+                        variant="gradient"
+                        onClick={() => navigate('/onboarding')}
+                        gradient={{ from: m.colors.snow[2], to: m.colors.snow[2], deg: 99 }}
+                        sx={{ zIndex: 10 }}
+                    >
+                        <IconRepeat size={20} />
+                        <Text sx={{ fontSize: "12px", marginLeft: "8px" }} fw={600}>
+                            new prompt
+                        </Text>
+                    </Button>
+                </Flex>
 
                 <Box
-                sx={{
-                    width: "100%",
-                    maxHeight: "80vh",
-                    overflowY: "auto",
-                    backgroundColor: m.colors.snow[3],
-                    borderRadius: "10px",
-                    padding: "48px",
-                    boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)",
-                    display: "flex",
-                    flexDirection: "column",
-                    justifyContent: "space-between", 
-                }}
+                    sx={{
+                        width: "100%",
+                        maxHeight: "80vh",
+                        overflowY: "auto",
+                        backgroundColor: m.colors.snow[3],
+                        borderRadius: "10px",
+                        padding: "48px",
+                        boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)",
+                        display: "flex",
+                        flexDirection: "column",
+                    }}
                 >
-                <Text sx={{ fontSize: "32px", color: m.colors.snow[4] }} fw={700}>
-                    {/* {parts[0]} */}
-                </Text>
-                <Text sx={{ fontSize: "16px", color: m.colors.snow[4] }} fw={500}>
-                    firstly, it's important to know that you <i> are</i> doing your best. you're never alone in your journey through parenthood
-                    and every step you try and take is a step in the right direction.
-                </Text>
-                <Text sx={{ fontSize: "10px", color: m.colors.snow[4] }}>
-                    {data.Output}
-                </Text>
+                    <Box sx={{           
+                        backgroundColor: '#EFC9B1',
+                        borderRadius: '10px',
+                        padding: '10px 10px 10px 20px',
+                        height: '120px',
+                        boxShadow: "0px 4px 5px rgba(0, 0, 0, 0.05)",
+                        display: "flex",
+                        alignItems: "center",
+                        marginBottom: "20px",
+                    }}>
+                        <Avatar size={80} src={profile?.headshot}/>
+                        <Flex direction="column">
+                            <Text sx={{ fontSize: "16px", color: m.colors.snow[4], marginLeft: "20px" }} fw={700}>
+                                {profile?.name}...
+                            </Text>
+                            <Text sx={{ fontSize: "14px", color: m.colors.snow[4], marginLeft: "20px" }} fw={400}>
+                                can sense your willingness and warmth as a parent.
+                            </Text>
+                        </Flex>
+                    </Box>
 
-                <Divider my="md" />
+                    <Text sx={{ fontSize: "14px", color: m.colors.ebony[4] }} fw={500}>
+                        Firstly, it's important to know that you <i>are</i> doing your best. You're never alone in your journey through parenthood, 
+                        and every step you take is a step in the right direction...
+                    </Text>
+                    <Text sx={{ fontSize: "16px", color: m.colors.ebony[4] }} fw={700}> 
+                        and finally, we've gathered some insights to help you navigate similar situations in the future:
+                    </Text>
 
-                <Text sx={{ fontSize: "10px", color: m.colors.snow[4] }}>
-                    {/* {parts[4]} */}
-                </Text>
-
-                <Divider my="md" />
-
-                <Text sx={{ fontSize: "10px", color: m.colors.snow[4] }}>
-                    {/* {parts[4]} */}
-                </Text>
+                    <Box sx={{ marginTop: "20px" }}>
+                        {data?.Output && Object.entries(data.Output).map(([category, message]) => (
+                            <Box key={category} sx={{ marginBottom: "12px" }}>
+                                <Text sx={{ fontSize: "14px", fontWeight: 700, color: m.colors.snow[4] }}>
+                                    {category}
+                                </Text>
+                                <Text sx={{ fontSize: "12px", color: m.colors.snow[4] }}>
+                                    {message}
+                                </Text>
+                            </Box>
+                        ))}
+                    </Box>
                 </Box>
             </Flex>
         </Flex>
-    </MantineProvider>
+      </MantineProvider>
     );
 };
 
