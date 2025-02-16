@@ -12,7 +12,7 @@ const Home = () => {
         direction="column"
         justify="center"
         align="center"
-        gap="0px"  // Reduced gap between the elements
+        gap="0px"
         sx={{
           backgroundSize: "cover",
           backgroundPosition: "center",
@@ -20,12 +20,11 @@ const Home = () => {
           height: "100vh",
           backgroundImage:`url('/bg.png')`,
         }}>
-        {/* Increased image size with no margin */}
         <Image 
           src="/hug.png" 
           alt="Hug" 
           width={90}  
-          mb={0}     // No margin for the image
+          mb={0} 
           sx={{
             filter: "invert(100%)",
           }}
@@ -46,7 +45,10 @@ const Home = () => {
         </Group>
         
         <Text fz="md" sx={{ textAlign: "center", width: "38%", color: m.colors.snow[0] }}>
-          Welcome to a space where you can better understand you teen's emotions. Feel free to be honest, share your thoughts, and be open to new ideas!
+          {/* welcoming you to a space where you can learn to understand your teen, be honest, and share your thoughts, and be open to new ideas! */}
+              learning to understand your teen and communicate your intentions is one of the hardest parts of being a parent,
+              but it doesn't have to be. 
+              {/* tell us exactly what the situation is, experience a mock scenario, and get some actionable advice. */}
         </Text>
         
         <Button

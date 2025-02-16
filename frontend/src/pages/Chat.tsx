@@ -205,7 +205,7 @@ const Chat = () => {
                     flexDirection: 'column',
                   }}
                 >
-                  <Text><i>{profile.name} is ready to speak... try to figure out whats going on with me.</i></Text>
+                  <Text><i>{profile.name} is ready to speak... try to figure out whats going on with him.</i></Text>
                   {messages.map((msg, index) => (
                     <ChatMessage key={index} text={msg.text} isUser={msg.isUser} />
                   ))}

@@ -27,21 +27,25 @@ export const personas = {
     "Angry Adam": {
         headshot: "/bob.png",
         name: "angry adam",
+        sent: "can sense that you're trying, but needs some warming up.",
         scenario: 'I am a high school student who needs help with homework, in particular math but i suck at it and im always mad at my mom! always mad!'
     },
     "Quiet Quintin": {
         headshot: "/eve.png",
         name: "quiet quintin",
+        sent: "can sense your willingness and warmth as a parent.",
         scenario: 'I am a high school student who needs help with homework, in particular math but i suck at it and im always mad at my mom! always mad!'
     },
     "Happy Hannah": {
         headshot: "/fred.png",
         name: "happy hannah",
+        sent: "appreciates your support and uses it to better herself.",
         scenario: 'I am a high school student who needs help with homework, in particular math but i suck at it and im always mad at my mom! always mad!'
     },
     "Judgemental Judy": {
         headshot: "/alice.png",
         name: "judgemental judy",
+        sent: "understands what she is taking for granted.",
         scenario: 'I am a high school student who needs help with homework, in particular math but i suck at it and im always mad at my mom! always mad!'
     },
   }
