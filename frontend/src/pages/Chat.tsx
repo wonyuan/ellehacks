@@ -39,6 +39,7 @@ const Chat = () => {
   const { persona, paragraph } = location.state || {}; 
   const classification = persona?.classification as keyof typeof profiles;
   const profile = profiles[classification];
+  console.log(profile);
 
   const chatHistory: Message[] = [];
 
@@ -61,6 +62,7 @@ const Chat = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
+  // EVALUATION ENDPOINT
   const { makeRequest } = useRequest({
     request: fetchEvaluation,
     requestByDefault: false,
@@ -68,7 +70,8 @@ const Chat = () => {
 
   const handleSubmit = async () => {
     setLoading(true);
-    const response = await makeRequest(messages);
+    console.log('gi', {chat_history: messages, scenario});
+    const response = await makeRequest({chat_history: messages, scenario});
 
     console.log('response', response);
     setLoading(false);
