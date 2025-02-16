@@ -20,6 +20,7 @@ import { fetchEvaluation } from '@api/evaluation';
 import { fetchScenario } from '@api/scenario';
 import useRequest from "@hooks/useRequest";
 import useLoading from "@context/loadingContext";
+import Loader from "@atoms/Loader";
 
 interface Message {
   text: string;
@@ -39,7 +40,6 @@ const Chat = () => {
   const { persona, paragraph } = location.state || {}; 
   const classification = persona?.classification as keyof typeof profiles;
   const profile = profiles[classification];
-  console.log(profile);
 
   const chatHistory: Message[] = [];
 
@@ -70,14 +70,13 @@ const Chat = () => {
 
   const handleSubmit = async () => {
     setLoading(true);
-    console.log('gi', {chat_history: messages, scenario});
     const response = await makeRequest({chat_history: messages, scenario});
+    console.log("RESPONSE", response);
 
-    console.log('response', response);
     setLoading(false);
     
     if (response) {
-      navigate("/chat", 
+      navigate("/results", 
         { state: 
           { data: response, 
             situation: scenario 
@@ -118,6 +117,7 @@ const Chat = () => {
 
   return (
     <MantineProvider theme={theme}>
+      <Loader />
       <Flex
         direction="column"
         justify="center"
@@ -159,6 +159,7 @@ const Chat = () => {
                   display: 'flex',
                   flexDirection: 'column',
                   alignItems: 'left',
+                  justifyContent: 'space-between',
                 }}
               >
                 <Text fw={700} sx={{ fontSize: '20px', color: m.colors.ebony[3], marginBottom: '16px' }}>
@@ -175,6 +176,7 @@ const Chat = () => {
                   onClick={handleSubmit}
                   variant="gradient"
                   gradient={{ from: m.colors.snow[2], to: m.colors.snow[4], deg: 12 }}
+                  sx = {{ marginBottom: "8px" }}
                 >
                   i'm done
                 </Button>
