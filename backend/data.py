@@ -3,6 +3,7 @@ from flask_cors import CORS
 import cohere
 import os
 from dotenv import load_dotenv
+
 load_dotenv()
 
 app = Flask(__name__)
@@ -23,7 +24,7 @@ persona_models = {
     "Happy Hannah": "5340c40f-9e3b-4d16-8d4c-9a1d4495e905-ft"
 }
 
-    
+
 @app.route('/classify', methods=['POST'])
 def classify():
     try:
@@ -66,12 +67,7 @@ def refine():
 
     stream = co.chat_stream( 
         model='c4ai-aya-expanse-32b',
-        message = (
-            f"Based on this information: '{situation}', create a profile summary in the following format: "
-            "'Hi, I am a child with ____ and I am ___.'. "
-            "Make the description 2 to 2.5 sentences long. Focus on general child psychology, ensuring accuracy and relevance to the given situation without being overly creative."
-        ),
-#        message='BASED ON THIS INFORMATION:'+ situation + " CREATE A PROFILE SUMMARY LIKE THIS: Hi I am a child with ____ and I am ___. Make the description 2 to 2.5 sentences and try to create something based on the given situation (not overly creative but target general child pyscology - as accurate as possible)",
+        message='BASED ON THIS INFORMATION:'+ situation + " CREATE A PROFILE SUMMARY LIKE THIS: Hi I am a child with ____ and I am ___. Make the description 2 to 2.5 sentences and try to create something based on the given situation (not overly creative but target general child pyscology - as accurate as possible)",
         temperature=0.3,
         chat_history=[],
         prompt_truncation='AUTO'
@@ -141,17 +137,11 @@ def evaluation():
         global chat_history
 
         stream = co.chat_stream( 
-            model = 'c4ai-aya-expanse-32b',
-            message = (
-                f"Based on the following information: {situation}, and the overall accuracy rating of {rating}, "
-                f"please provide tips on how the parent can improve the conversation: {chat}. "
-                "Include the following: "
-                "1. What the parent did well. "
-                "2. Areas for improvement. "
-                "3. Specific strategies to better connect with this child."),
-            temperature = 0.3,
-            chat_history = [],
-            prompt_truncation = 'AUTO'
+            model='c4ai-aya-expanse-32b',
+            message='BASED ON THIS INFORMATION:'+ situation + "and this overall accuracy percent:" + rating + "give tips on who a parent can improve this conversation:" + chat+ "GIVE THE FOLLOWING: WHAT THEY DID WELL, HOW THEY CAN IMPROVE, HOW TO CONNECT WITH THIS SPECIFIC CHILD.",
+            temperature=0.3,
+            chat_history=[],
+            prompt_truncation='AUTO'
         ) 
 
         well = ""
@@ -181,6 +171,6 @@ def evaluation():
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-
+    
 if __name__ == "__main__":
     app.run(debug = True)

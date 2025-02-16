@@ -10,16 +10,5 @@ export const fetchPersona = async ({ params }: classifyTextProps) => {
     url: `${baseURL}/classify`,
     body: params,
   });
-  console.log('data', data);   
   return data;
 };
-
-// // child personality summary
-// export const fetchSummary = async ({ params }: classifyTextProps) => {
-//   const data = await post({
-//     url: `${baseURL}/summary`,
-//     body: params,
-//   });
-//   console.log('data', data);   
-//   return data;
-// };

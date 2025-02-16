@@ -20,7 +20,7 @@ const Onboarding = () => {
     requestByDefault: false,
   });
 
-const handleSubmit = async () => {
+  const handleSubmit = async () => {
     setLoading(true);
     const response = await makeRequest({ paragraph: problem });
     setLoading(false);
@@ -101,7 +101,7 @@ const handleSubmit = async () => {
                 value={problem}
                 onChange={(event) => setProblem(event.currentTarget.value)}
                 placeholder="give me the details..."
-                size="lg"
+                size="md"
                 sx={{ marginTop: "24px", marginBottom: "24px", height:"200px" }}
             />
             <Text sx={{ fontSize: "16px", color: m.colors.ebony[4], marginBottom: "24px" }} fw={500}>
