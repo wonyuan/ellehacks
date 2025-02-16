@@ -133,7 +133,7 @@ def evaluation():
 
         stream = co.chat_stream( 
             model='c4ai-aya-expanse-32b',
-            message = f"Based on this information: {situation}, and this conversation: {chat}. Answer the following: 'what the parent did well', 'areas for improvement', and 'advice for better connection'. Give a brief text responses for each topic.",
+            message = f"Based on this information: {situation}, and this conversation: {chat}. ALWAYS Answer the following: 'what the parent did well', 'areas for improvement', and 'advice for better connection'. Give the heading and a text responses for each topic.",
             temperature=0.3,
             chat_history=[],
             prompt_truncation='AUTO'
@@ -146,10 +146,25 @@ def evaluation():
             if event.event_type == "text-generation":
                 output += event.text
                 # print(output, end='')
+        
+        sections = output.split('**')
+        response = {}
+
+        for i in range(1, len(sections), 2):  
+            key = sections[i].strip().rstrip(':')  
+            value = sections[i + 1].strip() if i + 1 < len(sections) else ""
+            key = "".join(c for c in key if c.isalnum() or c.isspace())  
+            value = "".join(c for c in value if c.isalnum() or c.isspace() or c in ".,!?")  
+            response[key] = value
+
+        print(response)  
 
         return {
-            "Output": output
+            "Output": response
         }
+        # return {
+        #     "Output": output
+        # }
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
