@@ -1,9 +1,19 @@
 import { theme } from "@styles/theme.ts";
 import { IconArrowLeft } from '@tabler/icons-react';
-import { Box, Text, Button, Flex, MantineProvider, useMantineTheme} from '@mantine/core';
+import { Box, Text, Button, Flex, MantineProvider, Divider, useMantineTheme} from '@mantine/core';
+import { useLocation } from 'react-router-dom';
+
 
 const Results = () => {
     const m = useMantineTheme();
+    const location = useLocation();
+    const { data, situation } = location.state || {}; 
+    console.log('gh', data, situation);
+    // const lines = data.Output.split('\n');
+    // const parts = lines.map((line: string) => line.split('**'));
+    // console.log(parts)
+
+
     return (
       <MantineProvider theme={theme}>
         <Flex           
@@ -56,13 +66,27 @@ const Results = () => {
                 }}
                 >
                 <Text sx={{ fontSize: "32px", color: m.colors.snow[4] }} fw={700}>
-                    digging right into your results...
+                    {/* {parts[0]} */}
                 </Text>
                 <Text sx={{ fontSize: "16px", color: m.colors.snow[4] }} fw={500}>
                     firstly, it's important to know that you <i> are</i> doing your best. you're never alone in your journey through parenthood
                     and every step you try and take is a step in the right direction.
                 </Text>
-                
+                <Text sx={{ fontSize: "10px", color: m.colors.snow[4] }}>
+                    {data.Output}
+                </Text>
+
+                <Divider my="md" />
+
+                <Text sx={{ fontSize: "10px", color: m.colors.snow[4] }}>
+                    {/* {parts[4]} */}
+                </Text>
+
+                <Divider my="md" />
+
+                <Text sx={{ fontSize: "10px", color: m.colors.snow[4] }}>
+                    {/* {parts[4]} */}
+                </Text>
                 </Box>
             </Flex>
         </Flex>

@@ -64,7 +64,7 @@ def refine():
 
     stream = co.chat_stream( 
         model='c4ai-aya-expanse-32b',
-        message='BASED ON THIS INFORMATION:'+ situation + "create a 1-2 description of a teenager, for example: Hi I am a teenager with ____ and I've been having trouble with _____. Please strictly adhere to the short and concise length.",
+        message='BASED ON THIS INFORMATION:'+ situation + "create a single, concise 2-sentence description of a teenager, for example: Hi I am a teenager with ____ and I've been having trouble with _____. Please strictly adhere to the short and concise length.",
         temperature=0.3,
         chat_history=[],
         prompt_truncation='AUTO'
@@ -133,28 +133,22 @@ def evaluation():
 
         stream = co.chat_stream( 
             model='c4ai-aya-expanse-32b',
-            message=f"BASED ON THIS INFORMATION: {situation}. Give tips on how a parent can improve this conversation: {chat}. GIVE THE FOLLOWING: WHAT THEY DID WELL, HOW THEY CAN IMPROVE, HOW TO CONNECT WITH THIS SPECIFIC CHILD.",
+            message = f"Based on this information: {situation}, and this conversation: {chat}. Answer the following: 'what the parent did well', 'areas for improvement', and 'advice for better connection'. Give a brief text responses for each topic.",
             temperature=0.3,
             chat_history=[],
             prompt_truncation='AUTO'
         ) 
 
-        well, improve, connection = "", "", ""
+        # well, improve, connection = "", "", ""
+        output = ""
 
         for event in stream:
             if event.event_type == "text-generation":
-                output = event.text
-                print(output, end='')
-
-                if "What the parent did well" in output:
-                    well = output
-                elif "Areas for improvement" in output:
-                    improve = output
-                elif "Specific strategies to better connect with this child" in output:
-                    connection = output
+                output += event.text
+                # print(output, end='')
 
         return {
-            "Tips": well
+            "Output": output
         }
 
     except Exception as e:
