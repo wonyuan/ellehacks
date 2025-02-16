@@ -16,7 +16,10 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { theme } from '@styles/theme';
 import { profiles } from '@constants/personas';
 import { fetchChat } from '@api/messages';
+import { fetchEvaluation } from '@api/evaluation';
 import { fetchScenario } from '@api/scenario';
+import useRequest from "@hooks/useRequest";
+import useLoading from "@context/loadingContext";
 
 interface Message {
   text: string;
@@ -26,6 +29,7 @@ interface Message {
 const Chat = () => {
   const m = useMantineTheme();
   const navigate = useNavigate();
+  const { setLoading } = useLoading();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [scenario, setScenario] = useState('');
@@ -33,9 +37,10 @@ const Chat = () => {
 
   const location = useLocation();
   const { persona, paragraph } = location.state || {}; 
-  // console.log('YAA', persona, paragraph);
   const classification = persona?.classification as keyof typeof profiles;
   const profile = profiles[classification];
+
+  const chatHistory: Message[] = [];
 
   useEffect(() => {
     const fetchScenarioData = async () => {
@@ -56,28 +61,53 @@ const Chat = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  // const submitChat = async () => {
+  const { makeRequest } = useRequest({
+    request: fetchEvaluation,
+    requestByDefault: false,
+  });
 
-  // }
+  const handleSubmit = async () => {
+    setLoading(true);
+    const response = await makeRequest(messages);
+
+    console.log('response', response);
+    setLoading(false);
+    
+    if (response) {
+      navigate("/chat", 
+        { state: 
+          { data: response, 
+            situation: scenario 
+          } 
+        });
+    }
+  };
 
   const sendMessage = async () => {
     if (!input.trim()) return;
+
     const userMessage = input;
-    setMessages((prev) => [...prev, { text: userMessage, isUser: true }]);
-    setInput('');
+    const userMessageObj = { text: userMessage, isUser: true };
+    
+    chatHistory.push(userMessageObj);
+    setMessages((prevMessages) => [...prevMessages, userMessageObj]);
+    setInput(''); 
 
     const params = {
       classification: persona.classification,
-      situation: paragraph, 
+      situation: paragraph,
       user_input: userMessage,
+      // chat_history: chatHistory, 
     };
 
     try {
       const data = await fetchChat({ params });
-      console.log(data);
       const botResponse = data?.bot_response || "Sorry, I couldn't get a response.";
-      console.log('bro', botResponse);
-      setMessages((prev) => [...prev, { text: botResponse, isUser: false }]);
+
+      const botMessageObj = { text: botResponse, isUser: false };
+      chatHistory.push(botMessageObj);
+      setMessages((prevMessages) => [...prevMessages, botMessageObj]);
+
     } catch (error) {
       console.error('Error fetching chatbot response:', error);
     }
@@ -131,17 +161,18 @@ const Chat = () => {
                 <Text fw={700} sx={{ fontSize: '20px', color: m.colors.ebony[3], marginBottom: '16px' }}>
                   {profile.name}
                 </Text>
-                <Avatar color="blue" radius="sm" size={160} src={profile.headshot} sx={{marginBottom: "24px"}}/>
+                <Avatar color="blue" radius="sm" size={160} src={profile.headshot} sx={{ marginBottom: "24px" }} />
                 <Text fw={700} sx={{ fontSize: '14px', color: m.colors.ebony[3] }}>
-                so here's the sketch... 
+                  so here's the sketch... 
                 </Text>
-                <Text sx={{ fontSize: '14px', color: m.colors.ebony[3], marginBottom: "42px"}}>
+                <Text sx={{ fontSize: '10px', color: m.colors.ebony[3], marginBottom: "42px" }}>
                   {scenario}
                 </Text>
                 <Button
-                  onClick={() => navigate('/results')}
+                  onClick={handleSubmit}
                   variant="gradient"
-                  gradient={{ from: m.colors.snow[2], to: m.colors.snow[4], deg: 12 }}>
+                  gradient={{ from: m.colors.snow[2], to: m.colors.snow[4], deg: 12 }}
+                >
                   i'm done
                 </Button>
               </Box>

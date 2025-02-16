@@ -3,6 +3,7 @@ from flask_cors import CORS
 import cohere
 import os
 from dotenv import load_dotenv
+
 load_dotenv()
 
 app = Flask(__name__)
@@ -20,7 +21,7 @@ persona_models = {
     "Happy Hannah": "5340c40f-9e3b-4d16-8d4c-9a1d4495e905-ft"
 }
 
-    
+
 @app.route('/classify', methods=['POST'])
 def classify():
     try:
@@ -28,14 +29,14 @@ def classify():
         paragraph = data.get("paragraph", "").strip()
 
         if not paragraph:
-            return jsonify({"error": "No paragraph provided"}), 400
+            return jsonify({"error": "No paragraph provided!"}), 400
 
         response = co.classify(
-            model='5ae71449-3ae0-488f-a703-eb0275839e8f-ft',
-            inputs=[paragraph]
+            model = '5ae71449-3ae0-488f-a703-eb0275839e8f-ft',
+            inputs = [paragraph]
         )
 
-        highest_confidence = max(response.classifications, key=lambda x: x.confidence)
+        highest_confidence = max(response.classifications, key = lambda x: x.confidence)
         classification = highest_confidence.prediction
         confidence_level = highest_confidence.confidence
 
@@ -63,7 +64,7 @@ def refine():
 
     stream = co.chat_stream( 
         model='c4ai-aya-expanse-32b',
-        message='BASED ON THIS INFORMATION:'+ situation + " CREATE A PROFILE SUMMARY LIKE THIS: Hi I am a child with ____ and I am ___. Make the description 2 to 2.5 sentences and try to create something based on the given situation (not overly creative but target general child pyscology - as accurate as possible)",
+        message="BASED ON THIS INFORMATION:" + situation +" CREATE A PROFILE SUMMARY FROM THE TEENAGER/CHILD PERSPECTIVE, FOR EXAMPLE: 'I am a ____ teenager with ____ and have been having trouble with _____.' WHERE THE ENDING IS A SCENARIO THAT REFLECTS THE TEENAGERS SITUATION. KEEP IT TO A MAXIMUM OF 2 SENTENCES, NO EXTRA WORDS OR DETAILS KEEP IT STRAIGHTFORWARD. NO QUOTATION MARKS.",
         temperature=0.3,
         chat_history=[],
         prompt_truncation='AUTO'
@@ -122,77 +123,58 @@ def chat():
         chat_history.append({"role": "Chatbot", "message": bot_response})
         return jsonify({"bot_response": bot_response})
     
-# want chat history from backend 
-    # elif request.method == 'GET':
-    #     # Return the current chat history
-    #     return jsonify({"chat_history": chat_history})
-
-'''
-@app.route('/evaluate', methods=['GET'])
-def evaluate():
-    global chat_history
-    # Get chat history from stored variable 
-    # data = request.json
-    # chat_history = data.get("chat_history")
-
-    # Evaluate the conversation
-    score = evaluate_conversation(chat_history)
-
-    # Reset the history after evaluation
-    chat_history = []
-
-    return jsonify({"score": score, "message": "Conversation evaluated and history reset."})
-'''
-
 @app.route('/evaluation', methods=['POST'])
 def evaluation():
     try:
         # Classify the conversation for communication quality
         data = request.json
         situation = data.get("situation")
-        chat = data.get("chat")
-
-        response = co.classify(
-            model = 'bfc37152-1c6c-4486-84bb-843dd7d9df11-ft',  # MODEL ID HERE
-            inputs = [chat]
-        )
-         # Find the classification with the highest confidence
-        highest_confidence = max(response.classifications, key=lambda x: x.confidence)
-        label = highest_confidence.prediction
-        # confidence_level = highest_confidence.confidence
-       
-        label_scores = {"one": "10%", "two": "20%", "three": "30%", "four": "40%", "five": "50%", "six": "60%", "seven": "70%", "eight": "80%", "nine": "90%", "ten": "100%",
-        }
-
-        rating = label_scores.get(label)
+        global chat_history
 
         stream = co.chat_stream( 
-            model='c4ai-aya-expanse-32b',
-            message='BASED ON THIS INFORMATION:'+ situation + "and this overall accuracy percent:" + rating + "give tips on who a parent can improve this conversation:" + chat+ "GIVE THE FOLLOWING: WHAT THEY DID WELL, HOW THEY CAN IMPROVE, HOW TO CONNECT WITH THIS SPECIFIC CHILD.",
-            temperature=0.3,
-            chat_history=[],
-            prompt_truncation='AUTO'
+            model = 'c4ai-aya-expanse-32b',
+            message = (
+                f"Based on the following information: {situation}. "
+                f"please provide tips on how the parent can improve the conversation: {chat}. "
+                "Include the following: "
+                "1. What the parent did well. "
+                "2. Areas for improvement. "
+                "3. Specific strategies to better connect with this child."),
+            temperature = 0.3,
+            chat_history = [],
+            prompt_truncation = 'AUTO'
         ) 
-        output = ""
+
+        well = ""
+        improve = ""
+        connection = ""
 
         for event in stream:
             if event.event_type == "text-generation":
-        # Concatenate the generated text to the updated_situation variable
-                output+= event.text
+                output = event.text
                 print(event.text, end='')
-    
+
+                # Here we separate the outputs based on the content
+                if "What the parent did welll" in output:
+                    well = output
+                elif "Areas for improvement" in output:
+                    improve = output
+                elif "Specific strategies to better connect with this child" in output:
+                    connection = output
 
         # # If confidence is low, prompt for more information
         # if confidence_level < 0.25:
         #     return {"error": "Confidence too low. Please provide more details."}, 400
+        chat_history = []
 
         return {
-            "conversation_rating": rating,
-            "Tips": output
+            "Well": well,
+            "Improvement": improve,
+            "Connection": connection
         }
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-
+    
 if __name__ == "__main__":
     app.run(debug=True)
